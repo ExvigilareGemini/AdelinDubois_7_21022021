@@ -1,0 +1,23 @@
+{
+  "name": "adelindubois_7_21022021",
+  "version": "1.0.0",
+  "description": "https://exvigilaregemini.github.io/AdelinDubois_7_21022021/",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prefix": "postcss ./assets/css/style.css --use autoprefixer -d ./assets/css/prefixed/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ExvigilareGemini/AdelinDubois_7_21022021.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ExvigilareGemini/AdelinDubois_7_21022021/issues"
+  },
+  "homepage": "https://github.com/ExvigilareGemini/AdelinDubois_7_21022021#readme",
+  "devDependencies": {
+    "eslint": "^7.20.0"
+  }
+}
