@@ -8,6 +8,7 @@
     <!-- Bootstrap link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/css/style.css">
     <script src="./controller/src/jquery-3.5.1.min.js"></script>
 </head>
 
@@ -34,40 +35,35 @@
         </div>
             
         <!-- DROPDOWN -->
-
+        <div class="row">
+        
             <!-- Ingrédients -->
-            <div class="dropdown mt-3 col" >
+            <div class="dropdown mt-3 col col-md-3 col-lg-2" >
                 <button class="btn btn-secondary dropdown-toggle bg-primary border-0 w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Ingredients
                 </button>
-                <div class="dropdown-menu megamenu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu dropdown-large bg-primary text-white" aria-labelledby="dropdownMenuButton">
                     <div class="row">
                         <div class="col-4">
-                            <div class="col-megamenu">
-                                <ul class="list-unstyled">
-                                    <li>test</li>
-                                    <li>test</li>
-                                    <li>test</li>
+                                <ul class="list-unstyled m-2">
+                                    <li>testrrrrrsssssss</li>
+                                    <li>testrrrrr</li>
+                                    <li>testrrrrrrr</li>
                                 </ul>
-                            </div>
                         </div>
-                        <div class="col-3">
-                            <div class="col-megamenu">
-                                <ul class="list-unstyled">
+                        <div class="col-4">
+                                <ul class="list-unstyled m-2">
                                     <li>test</li>
                                     <li>test</li>
                                     <li>test</li>
                                 </ul>
-                            </div>
                         </div>
-                        <div class="col-3">
-                            <div class="col-megamenu">
-                                <ul class="list-unstyled">
+                        <div class="col-4">
+                                <ul class="list-unstyled m-2">
                                     <li>test</li>
                                     <li>test</li>
                                     <li>test</li>
                                 </ul>
-                            </div>
                         </div>
                     </div>
 
@@ -75,13 +71,13 @@
             </div>
 
             <!-- Appareils -->
-            <div class="dropdown mt-3 col">
+            <div class="dropdown mt-3 col col-md-3 col-lg-2">
                 <button class="btn btn-secondary dropdown-toggle bg-info border-0 w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Appareil
                 </button>
-                <div class="dropdown-menu megamenu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu megamenu bg-info w-100 text-white" aria-labelledby="dropdownMenuButton">
                     <div class="row">
-                        <div class="col-3">
+                        <div class="col-4 text-center">
                             <div class="col-megamenu">
                                 <ul class="list-unstyled">
                                     <li>test</li>
@@ -90,7 +86,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-4 text-center">
                             <div class="col-megamenu">
                                 <ul class="list-unstyled">
                                     <li>test</li>
@@ -99,7 +95,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-4 text-center">
                             <div class="col-megamenu">
                                 <ul class="list-unstyled">
                                     <li>test</li>
@@ -114,13 +110,13 @@
             </div>
 
             <!-- Ustensiles -->
-            <div class="dropdown mt-3 col">
+            <div class="dropdown mt-3 col col-md-3 col-lg-2">
                 <button class="btn btn-secondary dropdown-toggle bg-warning border-0 w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Ustensiles
                 </button>
-                <div class="dropdown-menu megamenu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu megamenu bg-warning w-100 text-white" aria-labelledby="dropdownMenuButton">
                     <div class="row">
-                        <div class="col-3">
+                        <div class="col-4 text-center">
                             <div class="col-megamenu">
                                 <ul class="list-unstyled">
                                     <li>test</li>
@@ -129,7 +125,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-4 text-center">
                             <div class="col-megamenu">
                                 <ul class="list-unstyled">
                                     <li>test</li>
@@ -138,7 +134,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-4 text-center">
                             <div class="col-megamenu">
                                 <ul class="list-unstyled">
                                     <li>test</li>
@@ -153,25 +149,12 @@
             </div>
         </div>
             
+    </div>
+            
 
         <!-- CARD -->
         <div class="container mt-3">
-            <div class="card col col-sm-6 col-md-4">
-                <img src="#" class="card-img-top" alt="">
-                <div class="card-body">
-                    <div class="row">
-                        <h5 class="card-title col-6">Card title</h5>
-                        <p class="card-text col-6 text-end"><span class="far fa-clock"></span><b>150min</b></p>
-                    </div>
-                    <div class="row">
-                        <div class="container col-6">
-                            <p class=" card-text mb-0">  <b>Test</b>: klm</p>
-                            <p class=" card-text mb-0">  <b>Test</b>: klm</p>
-                            <p class=" card-text mb-0">  <b>Test</b>: klm</p>
-                        </div>
-                        <p class="col-6">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit </p>
-                    </div>
-                </div>
+            <div class="row container-cards">
             </div>
         </div>
 
@@ -182,5 +165,10 @@
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     
+    <script src="./controller/app.js"></script>
+
+    <script>fetchDataToCreateCardHTML()</script>
+
+
 </body>
 </html>
