@@ -1,16 +1,30 @@
+let arrayOfObjetForSearch = [];
+
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
 // DYNAMIC CREATION OF HTML BASED ON RECIPE.JS.
 
+// F04
+// Create the array of object used for the search functionnality
+function createArrayOfObjectsForSearch(data) {
+    arrayOfObjetForSearch.push({
+        id: data.id,
+        title: data.name,
+        ingredients: data.ingredients,
+        description: data.description
+    })
+}
+
 // F05
 // generate html content of 1 photographer displayed (.photograph) using template strings and
 // populate with objectphotographer
+// call F04 to create th array of object used for the searching
 // argument: object photographer from data.json
-function photographHTMLGenerator(data) {
-    console.log(data);
+function cardsHTMLGenerator(data) {
+    createArrayOfObjectsForSearch(data);
     return `
-            <div class="card mh-500 col-12 col-md-6">
+            <div class="card mh-500 col-12 col-md-6" data-id="${data.id}">
                 <img src="#" class="card-img-top" alt="image">
                 <div class="card-body">
                     <div class="row">
@@ -30,10 +44,10 @@ function photographHTMLGenerator(data) {
   
   // F06
   // function that create all the block of HTML that is needed to be displayed,
-  // takes data and create a new array using .map and F05 (photographHTMLGenerator)
+  // takes data and create a new array using .map and F05 (cardsHTMLGenerator)
   // argument: datas from JSON
   function cardHTMLCompiler(data) {
-    return data.map(photographHTMLGenerator).join('');
+    return data.map(cardsHTMLGenerator).join('');
   }
   
   
