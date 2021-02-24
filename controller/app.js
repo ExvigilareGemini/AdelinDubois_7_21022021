@@ -46,7 +46,10 @@ function cardsHTMLGenerator(data) {
                         ${data.ingredients.map((ingredient) => `
                         <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${displayIfNotUndefined(ingredient.quantity)} ${displayIfNotUndefined(ingredient.unit)}</p>`).join('')}
                         </div>
-                        <p class="col-6 text-truncate">${data.description}</p>
+                        <div class="container col-6">
+                            <p class="block-with-text">${data.description}</p>
+                        </div>
+                            
                     </div>
                 </div>
             </div>`;
