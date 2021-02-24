@@ -16,6 +16,16 @@ function createArrayOfObjectsForSearch(data) {
     })
 }
 
+// display the value if not undefined
+function displayIfNotUndefined (value) {
+    if (value !== undefined) {
+        return value;
+    }
+    else {
+        return '';
+    }
+}
+
 // F05
 // generate html content of 1 photographer displayed (.photograph) using template strings and
 // populate with objectphotographer
@@ -24,8 +34,8 @@ function createArrayOfObjectsForSearch(data) {
 function cardsHTMLGenerator(data) {
     createArrayOfObjectsForSearch(data);
     return `
-            <div class="card mh-500 col-12 col-md-6" data-id="${data.id}">
-                <img src="#" class="card-img-top" alt="image">
+            <div class="card mh-500 col-12 col-md-6 mt-3 p-0" data-id="${data.id}">
+                <img src="./assets/src/red.png" style="height: 230px; width: 100%; display: block;" class="card-img-top" alt="image">
                 <div class="card-body">
                     <div class="row">
                         <h5 class="card-title col-6">${data.name}</h5>
@@ -34,7 +44,7 @@ function cardsHTMLGenerator(data) {
                     <div class="row">
                         <div class="container col-6">
                         ${data.ingredients.map((ingredient) => `
-                        <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${ingredient.quantity} ${ingredient.unit}</p>`).join('')}
+                        <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${displayIfNotUndefined(ingredient.quantity)} ${displayIfNotUndefined(ingredient.unit)}</p>`).join('')}
                         </div>
                         <p class="col-6 text-truncate">${data.description}</p>
                     </div>
