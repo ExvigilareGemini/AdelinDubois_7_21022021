@@ -12,6 +12,10 @@
   font-size: 0.9em;
 }
 
+[data-hidden="true"]{
+  display: none;
+}
+
 /* truncate on 10 lines max */
 
 /* styles for '...' */

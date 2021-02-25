@@ -4,6 +4,7 @@ const objectOfArraysForDropdown = {
   appareils: [],
   ustensils: [],
 };
+
 const colorsOfDropwdown = ['primary', 'info', 'warning'];
 let countForColorsOfDropdown = -1;
 
@@ -49,12 +50,12 @@ function populateObjectOfArraysForDropdown() {
     // populate appareil[]
     let isInArray = false;
     objectOfArraysForDropdown.appareils.forEach((appareilDropdown) => {
-      if (el.appareil === appareilDropdown) {
+      if (el.appareils === appareilDropdown) {
         isInArray = true;
       }
     });
     if (!isInArray) {
-      objectOfArraysForDropdown.appareils.push(el.appareil);
+      objectOfArraysForDropdown.appareils.push(el.appareils);
     }
   });
 }
@@ -69,13 +70,13 @@ function dropdownHTMLGenerator(key) {
         <button class="btn btn-secondary dropdown-toggle bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         ${key.charAt(0).toUpperCase() + key.slice(1)}
         </button>
-        <div class="dropdown-menu dropdown-large bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton">
-            <ul class="list-unstyled d-flex flex-wrap">
+        <form class="dropdown-menu dropdown-large bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton">
+            <div class="d-flex flex-wrap" data-category="${key}">
                 ${objectOfArraysForDropdown[key].map((el) => `
-                <li class="w-50 dropdown-item text-truncate">${el}</li>
+                <a class="w-50 dropdown-item text-truncate" href="#">${el}</a>
                 `).join('')}
-            </ul>
-        </div>
+            </div>
+        </form>
     </div>
     `;
 }
@@ -99,7 +100,7 @@ function createArrayOfObjectsForSearch(data) {
     title: data.name,
     ingredients: data.ingredients,
     description: data.description,
-    appareil: data.appliance,
+    appareils: data.appliance,
     ustensils: data.ustensils,
   });
 }
@@ -158,9 +159,9 @@ function cardHTMLCompiler(data) {
 // then call F07 (isRedirectFromPhotographerPage)
 // argument: is datas form JSON passing to F09 (fetchDataToCreateIndexHTML)
 function insertCreatedHTML(data) {
-  document.querySelector('.container-cards').innerHTML = cardHTMLCompiler(data);
+  document.querySelector('.container-cards').insertAdjacentHTML('afterbegin', cardHTMLCompiler(data));
   populateObjectOfArraysForDropdown();
-  document.querySelector('.container-dropdown').innerHTML = dropdownHTMLCompiler();
+  document.querySelector('.container-dropdown').insertAdjacentHTML('beforeend', dropdownHTMLCompiler());
 }
 
 // F09
