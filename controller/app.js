@@ -1,9 +1,14 @@
 const arrayOfObjetForSearch = [];
+
 const objectOfArraysForDropdown = {
   ingredients: [],
   appareils: [],
   ustensils: [],
 };
+
+const toCompareForTags = [];
+
+const tagChecked = [];
 
 const colorsOfDropwdown = ['primary', 'info', 'warning'];
 let countForColorsOfDropdown = -1;
@@ -135,7 +140,7 @@ function cardsHTMLGenerator(data) {
                         <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${displayIfNotUndefined(ingredient.quantity)} ${displayIfNotUndefined(ingredient.unit)}</p>`).join('')}
                         </div>
                         <div class="container col-6">
-                            <p class="block-with-text">${data.description}</p>
+                            <p class="truncate-multilign">${data.description}</p>
                         </div>
                             
                     </div>
@@ -152,6 +157,22 @@ function cardHTMLCompiler(data) {
 }
 
 // _________________________________________________________________________________________________
+// FILLING DATAS
+
+function populateArrayToCompareForTags() {
+  arrayOfObjetForSearch.forEach((el) => {
+    const arrayToPush = [];
+    arrayToPush.push(el.appareils);
+    el.ustensils.forEach((ustensil) => arrayToPush.push(ustensil));
+    el.ingredients.forEach((ingredient) => arrayToPush.push(ingredient.ingredient));
+    toCompareForTags.push({
+      id: el.id,
+      values: arrayToPush,
+    });
+  });
+}
+
+// _________________________________________________________________________________________________
 // INSERTING HTML AND FETCH DATAS
 
 // F08
@@ -162,6 +183,7 @@ function insertCreatedHTML(data) {
   document.querySelector('.container-cards').insertAdjacentHTML('afterbegin', cardHTMLCompiler(data));
   populateObjectOfArraysForDropdown();
   document.querySelector('.container-dropdown').insertAdjacentHTML('beforeend', dropdownHTMLCompiler());
+  populateArrayToCompareForTags();
 }
 
 // F09
@@ -174,3 +196,62 @@ function fetchDataToCreateCardHTML() {
     .then((data) => insertCreatedHTML(data))
     .catch((error) => console.log(`Erreur : ${error}`));
 }
+
+// _________________________________________________________________________________________________
+// _________________________________________________________________________________________________
+// DROPDOWN & TAGS -> SORTING CARDS
+// _________________________________________________________________________________________________
+
+function createTag(valueOfSearch) {
+  document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `<p data-tag="${valueOfSearch}">${valueOfSearch}</p>`);
+}
+
+function deleteTag(valueOfSearch) {
+  document.querySelector(`[data-tag="${valueOfSearch}"]`).remove();
+}
+
+function tagIsChecked(valueOfSearch) {
+  if (tagChecked.indexOf(valueOfSearch) === -1) {
+    tagChecked.push(valueOfSearch);
+    createTag(valueOfSearch);
+  } else {
+    tagChecked.splice(tagChecked.indexOf(valueOfSearch, 1));
+    deleteTag(valueOfSearch);
+  }
+}
+
+function filterArrayWithTags() {
+  return toCompareForTags.filter((el) => {
+    let returnBool = false;
+    el.values.forEach((val) => {
+      tagChecked.forEach((tag) => {
+        if (tag === val) {
+          returnBool = true;
+        }
+      });
+    });
+    return returnBool;
+  });
+}
+
+function displayCardsWithTags(sortedArray) {
+  if (sortedArray.length === 0) {
+    document.querySelectorAll('.card').forEach((card) => { card.dataset.hidden = false; });
+  } else {
+    document.querySelectorAll('.card').forEach((card) => { card.dataset.hidden = true; });
+    sortedArray.forEach((el) => {
+      document.querySelector(`[data-id="${el.id}"]`).dataset.hidden = false;
+    });
+  }
+}
+
+// event delegation listening click on dropdown-item
+document.querySelector('.container-dropdown').addEventListener('click', (event) => {
+  const valueOfSearch = event.target.textContent;
+
+  if (event.target.tagName === 'A') {
+    tagIsChecked(valueOfSearch);
+    const sortedArray = filterArrayWithTags();
+    displayCardsWithTags(sortedArray);
+  }
+});
