@@ -4,8 +4,7 @@
   min-width: 280px;
 }
 
-
-[data-hidden="true"]{
+[data-hidden="true"] {
   display: none;
 }
 
@@ -55,4 +54,17 @@
 .w-30 {
   width: 30%;
   margin-left: 3%;
+}
+
+.tag-close-cross {
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.input-rounded-left {
+  border-radius: 5px 0 0 5px;
+}
+
+.btn-rounded-right {
+  border-radius:  0 5px 5px 0 ;
 }

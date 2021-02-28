@@ -72,16 +72,20 @@ function dropdownHTMLGenerator(key) {
   countForColorsOfDropdown += 1;
   return `
     <div class="dropdown mt-3 col-12 col-md-3 col-lg-2" >
-        <button class="btn btn-secondary dropdown-toggle bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        ${key.charAt(0).toUpperCase() + key.slice(1)}
-        </button>
-        <form class="dropdown-menu dropdown-large bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton">
-            <div class="d-flex flex-wrap" data-category="${key}">
-                ${objectOfArraysForDropdown[key].map((el) => `
-                <a class="w-50 dropdown-item text-truncate" href="#">${el}</a>
-                `).join('')}
-            </div>
-        </form>
+      <div class="container p-1">
+        <div class="row">
+          <input type="text" class="col form-control text-center bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 text-white input-rounded-left" value="${key.charAt(0).toUpperCase() + key.slice(1)}" placeholder="Rechercher un ${key}">
+          <button class="col-2 col-md-3 btn btn-secondary dropdown-toggle bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 btn-rounded-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          </button>
+          <form class="dropdown-menu dropdown-large bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton">
+              <div class="d-flex flex-wrap" data-category="${key}" data-color="${colorsOfDropwdown[countForColorsOfDropdown]}">
+                  ${objectOfArraysForDropdown[key].map((el) => `
+                  <a class="w-50 dropdown-item text-truncate" href="#">${el}</a>
+                  `).join('')}
+              </div>
+          </form>
+        </div>
+      </div>
     </div>
     `;
 }
@@ -199,24 +203,31 @@ function fetchDataToCreateCardHTML() {
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
-// DROPDOWN & TAGS -> SORTING CARDS
+// FILTERING CARDS WITH DROPDOWN & TAGS
 // _________________________________________________________________________________________________
 
-function createTag(valueOfSearch) {
-  document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `<p data-tag="${valueOfSearch}">${valueOfSearch}</p>`);
+function createTag(valueOfSearch, colorOfTag) {
+  tagChecked.push(valueOfSearch);
+  document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
+            <span class="badge bg-${colorOfTag} p-2" data-tag="${valueOfSearch}">${valueOfSearch}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle tag-close-cross" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </span>
+            `);
 }
 
-function deleteTag(valueOfSearch) {
+function removeTag(valueOfSearch) {
+  tagChecked.splice(tagChecked.indexOf(valueOfSearch, 1));
   document.querySelector(`[data-tag="${valueOfSearch}"]`).remove();
 }
 
-function tagIsChecked(valueOfSearch) {
+function tagIsChecked(valueOfSearch, colorOfTag) {
   if (tagChecked.indexOf(valueOfSearch) === -1) {
-    tagChecked.push(valueOfSearch);
-    createTag(valueOfSearch);
+    createTag(valueOfSearch, colorOfTag);
   } else {
-    tagChecked.splice(tagChecked.indexOf(valueOfSearch, 1));
-    deleteTag(valueOfSearch);
+    removeTag(valueOfSearch);
   }
 }
 
@@ -248,10 +259,20 @@ function displayCardsWithTags(sortedArray) {
 // event delegation listening click on dropdown-item
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
   const valueOfSearch = event.target.textContent;
+  const colorOfTag = event.target.parentNode.dataset.color;
 
   if (event.target.tagName === 'A') {
-    tagIsChecked(valueOfSearch);
+    tagIsChecked(valueOfSearch, colorOfTag);
     const sortedArray = filterArrayWithTags();
     displayCardsWithTags(sortedArray);
+  }
+});
+
+document.querySelector('.container-tag').addEventListener('click', (event) => {
+  const tagToRemove = event.target.parentNode.dataset.tag;
+  if (event.target.tagName === 'svg' || event.target.tagName === 'path') {
+    console.log(tagChecked);
+    removeTag(tagToRemove);
+    console.log(tagChecked);
   }
 });
