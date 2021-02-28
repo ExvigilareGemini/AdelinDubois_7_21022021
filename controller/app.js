@@ -74,7 +74,7 @@ function dropdownHTMLGenerator(key) {
     <div class="dropdown mt-3 col-12 col-md-3 col-lg-2" >
       <div class="container p-1">
         <div class="row">
-          <input type="text" class="col form-control text-center bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 text-white input-rounded-left" value="${key.charAt(0).toUpperCase() + key.slice(1)}" placeholder="Rechercher un ${key}">
+          <input type="text" class="col form-control dropdown-toggle text-center bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 text-white input-rounded-left" data-toggle="dropdown" value="${key.charAt(0).toUpperCase() + key.slice(1)}" placeholder="Rechercher un ${key}">
           <button class="col-2 col-md-3 btn btn-secondary dropdown-toggle bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 btn-rounded-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           </button>
           <form class="dropdown-menu dropdown-large bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton">
