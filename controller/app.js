@@ -131,14 +131,15 @@ function displayIfNotUndefined(value) {
 function cardsHTMLGenerator(data) {
   createArrayOfObjectsForSearch(data);
   return `
-            <div class="card mh-500 col-12 col-md-6 mt-3 p-0" data-id="${data.id}">
-                <img src="./assets/src/red.png" style="height: 230px; width: 100%; display: block;" class="card-img-top" alt="image">
+          <div class="col mt-3">
+            <div class="card h-100" data-id="${data.id}">
+                <img src="./assets/src/OC.jpg" style="height: 230px; width: 100%; display: block;" class="card-img-top fit-img" alt="image">
                 <div class="card-body">
                     <div class="row">
-                        <h5 class="card-title col-6">${data.name}</h5>
-                        <p class="card-text col-6 text-end"><span class="far fa-clock"></span><b>${data.time}min</b></p>
+                        <h5 class="card-title col">${data.name}</h5>
+                        <p class="card-text col-4 text-end"><span class="far fa-clock"></span><b>${data.time}min</b></p>
                     </div>
-                    <div class="row">
+                    <div class="row fs-7">
                         <div class="container col-6">
                         ${data.ingredients.map((ingredient) => `
                         <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${displayIfNotUndefined(ingredient.quantity)} ${displayIfNotUndefined(ingredient.unit)}</p>`).join('')}
@@ -149,7 +150,8 @@ function cardsHTMLGenerator(data) {
                             
                     </div>
                 </div>
-            </div>`;
+            </div>
+          </div>`;
 }
 
 // F06
@@ -205,29 +207,6 @@ function fetchDataToCreateCardHTML() {
 // _________________________________________________________________________________________________
 // FILTERING CARDS WITH DROPDOWN & TAGS
 // _________________________________________________________________________________________________
-
-function createTag(valueOfSearch, colorOfTag) {
-  tagChecked.push(valueOfSearch);
-  document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
-            <span class="badge bg-${colorOfTag} p-2" data-tag="${valueOfSearch}">${valueOfSearch}
-              <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
-            </span>
-            `);
-}
-
-function removeTag(valueOfSearch) {
-  tagChecked.splice(tagChecked.indexOf(valueOfSearch, 1));
-  document.querySelector(`[data-tag="${valueOfSearch}"]`).remove();
-}
-
-function tagIsChecked(valueOfSearch, colorOfTag) {
-  if (tagChecked.indexOf(valueOfSearch) === -1) {
-    createTag(valueOfSearch, colorOfTag);
-  } else {
-    removeTag(valueOfSearch);
-  }
-}
-
 function filterArrayWithTags() {
   return toCompareForTags.filter((el) => {
     let returnBool = false;
@@ -244,12 +223,35 @@ function filterArrayWithTags() {
 
 function displayCardsWithTags(sortedArray) {
   if (sortedArray.length === 0) {
-    document.querySelectorAll('.card').forEach((card) => { card.dataset.hidden = false; });
+    document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = false; });
   } else {
-    document.querySelectorAll('.card').forEach((card) => { card.dataset.hidden = true; });
+    document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
     sortedArray.forEach((el) => {
-      document.querySelector(`[data-id="${el.id}"]`).dataset.hidden = false;
+      document.querySelector(`[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
     });
+  }
+}
+
+function createTag(valueOfSearch, colorOfTag) {
+  tagChecked.push(valueOfSearch);
+  document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
+            <span class="badge bg-${colorOfTag} p-2" data-tag="${valueOfSearch}">${valueOfSearch}
+              <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
+            </span>
+            `);
+}
+
+function removeTag(valueOfSearch) {
+  tagChecked.splice(tagChecked.indexOf(valueOfSearch, 1));
+  document.querySelector(`[data-tag="${valueOfSearch}"]`).remove();
+  displayCardsWithTags(filterArrayWithTags());
+}
+
+function tagIsChecked(valueOfSearch, colorOfTag) {
+  if (tagChecked.indexOf(valueOfSearch) === -1) {
+    createTag(valueOfSearch, colorOfTag);
+  } else {
+    removeTag(valueOfSearch);
   }
 }
 
@@ -294,7 +296,6 @@ document.querySelector('.container-dropdown').addEventListener('input', (event) 
   const category = event.target.getAttribute('value').toLowerCase(); // ingredient, appareils, ustensils
   const targetValue = event.target.value.toLowerCase();
   const nodeListOfElementInDropdown = document.querySelectorAll(`[data-category="${category}"]`);
-
   const newArrayFiltered = filteringArrayDropdownInput(category, targetValue);
 
   displayContentOfDropdown(newArrayFiltered, nodeListOfElementInDropdown, category);
