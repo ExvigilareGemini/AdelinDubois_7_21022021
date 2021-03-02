@@ -235,7 +235,7 @@ function displayCardsWithTags(sortedArray) {
 function createTag(valueOfSearch, colorOfTag) {
   tagChecked.push(valueOfSearch);
   document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
-            <span class="badge bg-${colorOfTag} p-2" data-tag="${valueOfSearch}">${valueOfSearch}
+            <span class="badge bg-${colorOfTag} p-2 mt-3" data-tag="${valueOfSearch}">${valueOfSearch}
               <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
             </span>
             `);
