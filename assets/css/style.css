@@ -51,9 +51,16 @@
   background: white;
 }
 
-.w-30 {
-  width: 30%;
+.w-item {
+  width: 45%;
   margin-left: 3%;
+}
+
+@media screen and (min-width:992px) {
+  .w-item {
+    width: 30%;
+    margin-left: 3%;
+  }
 }
 
 .tag-close-cross {

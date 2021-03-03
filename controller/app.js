@@ -10,6 +10,11 @@ const toCompareForTags = [];
 
 const tagChecked = [];
 
+const isADropdownOpen = {
+  isOpen: false,
+  category: '',
+};
+
 const colorsOfDropwdown = ['primary', 'info', 'warning'];
 let countForColorsOfDropdown = -1;
 
@@ -71,19 +76,21 @@ function populateObjectOfArraysForDropdown() {
 function dropdownHTMLGenerator(key) {
   countForColorsOfDropdown += 1;
   return `
-    <div class="dropdown mt-3 col-12 col-md-3 col-lg-2" >
+    <div class="mt-3 col-12 col-md-3 col-lg-2 dropdown" data-category="${key}">
       <div class="container p-1">
         <div class="row">
-          <input type="text" class="col form-control dropdown-toggle text-center bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 text-white input-rounded-left" data-toggle="dropdown" value="${key.charAt(0).toUpperCase() + key.slice(1)}" placeholder="Rechercher un ${key}">
-          <button class="col-2 col-md-3 btn btn-secondary dropdown-toggle bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 btn-rounded-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          </button>
-          <form class="dropdown-menu dropdown-large bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton">
-              <div class="d-flex flex-wrap" data-category="${key}" data-color="${colorsOfDropwdown[countForColorsOfDropdown]}">
-                  ${objectOfArraysForDropdown[key].map((el) => `
-                  <a class="w-50 dropdown-item text-truncate" data-category="${key}" data-content="${el.toLowerCase()}" href="#">${el}</a>
-                  `).join('')}
-              </div>
-          </form>
+          <div class="btn-group p-0">
+            <button class="col-11 col-md-9 btn btn-secondary btn-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" type="button" data-category="${key}">${key.charAt(0).toUpperCase() + key.slice(1)}</button>
+            <input class="col-11 text-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 rounded-star" data-category="${key}" data-hidden="true" placeholder="Rechercher parmis les ${key}">
+            <button class="col btn btn-secondary dropdown-toggle dropdown-toggle-split bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" id="dropdownMenuButton" type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" data-category="${key}"></button>
+            <form class="dropdown-menu bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton" data-category="${key}">
+                <div class="d-flex flex-wrap" data-category="${key}" data-color="${colorsOfDropwdown[countForColorsOfDropdown]}">
+                    ${objectOfArraysForDropdown[key].map((el) => `
+                    <a class="w-item dropdown-item text-truncate" data-category="${key}" data-content="${el.toLowerCase()}" href="#" data-category="${key}">${el}</a>
+                    `).join('')}
+                </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -205,98 +212,57 @@ function fetchDataToCreateCardHTML() {
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
-// FILTERING CARDS WITH DROPDOWN & TAGS
+// DROPDOWN DISPLAYING
 // _________________________________________________________________________________________________
-function filterArrayWithTags() {
-  return toCompareForTags.filter((el) => {
-    let returnBool = false;
-    el.values.forEach((val) => {
-      tagChecked.forEach((tag) => {
-        if (tag === val) {
-          returnBool = true;
-        }
-      });
-    });
-    return returnBool;
-  });
-}
 
-function displayCardsWithTags(sortedArray) {
-  if (sortedArray.length === 0) {
-    document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = false; });
+// make container of dropdown bigger while dropdown is open for screen bigger than 768px
+// category is for which dropdown, openClose tell if i'm opening or closing. When opening dropdown
+// the container get bigger, it get his initial size when closing
+function biggerContainer(category, openClose) {
+  const dropdownContainer = document.querySelector(`.dropdown[data-category="${category}"]`);
+  const mediaQuery = 'screen and (min-width:768px)';
+  const matched = window.matchMedia(mediaQuery).matches;
+
+  if (openClose) {
+    matched ? dropdownContainer.classList.add('w-50') : '';
   } else {
-    document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
-    sortedArray.forEach((el) => {
-      document.querySelector(`[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
-    });
+    matched ? dropdownContainer.classList.remove('w-50') : '';
   }
 }
 
-function createTag(valueOfSearch, colorOfTag) {
-  tagChecked.push(valueOfSearch);
-  document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
-            <span class="badge bg-${colorOfTag} p-2 mt-3" data-tag="${valueOfSearch}">${valueOfSearch}
-              <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
-            </span>
-            `);
+// open or close dropdown menu, category correspond to data-category in DOM, openClose is bool
+// true -> opening | false -> closing
+function openCloseDropdown(category, openClose) {
+  const dropdownForm = document.querySelector(`.dropdown-menu[data-category="${category}"]`);
+  const morphingBtn = document.querySelector(`.btn-morphing[data-category="${category}"]`);
+  const morphingText = document.querySelector(`.text-morphing[data-category="${category}"]`);
+
+  dropdownForm.classList.toggle('show');
+  morphingText.dataset.hidden = !openClose;
+  morphingBtn.dataset.hidden = openClose;
+  biggerContainer(category, openClose);
 }
 
-function removeTag(valueOfSearch) {
-  tagChecked.splice(tagChecked.indexOf(valueOfSearch, 1));
-  document.querySelector(`[data-tag="${valueOfSearch}"]`).remove();
-  displayCardsWithTags(filterArrayWithTags());
-}
-
-function tagIsChecked(valueOfSearch, colorOfTag) {
-  if (tagChecked.indexOf(valueOfSearch) === -1) {
-    createTag(valueOfSearch, colorOfTag);
-  } else {
-    removeTag(valueOfSearch);
-  }
-}
-
-// event delegation listening click on dropdown-item
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
-  const valueOfSearch = event.target.textContent;
-  const colorOfTag = event.target.parentNode.dataset.color;
+  if (event.target.tagName === 'BUTTON') {
+    const targetCategory = event.target.dataset.category;
+    let isOpenToReturn = true;
+    let categoryToReturn = targetCategory;
 
-  if (event.target.tagName === 'A') {
-    tagIsChecked(valueOfSearch, colorOfTag);
-    const sortedArray = filterArrayWithTags();
-    displayCardsWithTags(sortedArray);
-  }
-});
-
-// remove tag while clicking on his closing-cross
-document.querySelector('.container-tag').addEventListener('click', (event) => {
-  const tagToRemove = event.target.parentNode.dataset.tag;
-  if (event.target.className === 'tag-close-cross') {
-    removeTag(tagToRemove);
-  }
-});
-
-function filteringArrayDropdownInput(category, targetValue) {
-  const arrayFiltered = objectOfArraysForDropdown[category].filter((el) => {
-    if (el.toLowerCase().search(targetValue) !== -1) {
-      return true;
+    if (isADropdownOpen.isOpen) {
+      if (isADropdownOpen.category === targetCategory) {
+        openCloseDropdown(targetCategory, false);
+        isOpenToReturn = false;
+        categoryToReturn = '';
+      } else {
+        openCloseDropdown(isADropdownOpen.category, false);
+        openCloseDropdown(targetCategory, true);
+      }
+    } else {
+      openCloseDropdown(targetCategory, true);
     }
-    return false;
-  });
-  return arrayFiltered;
-}
 
-function displayContentOfDropdown(newArrayFiltered, nodeListOfElementInDropdown) {
-  nodeListOfElementInDropdown.forEach((el) => el.dataset.hidden = true);
-  newArrayFiltered.forEach((valueFiltered) => {
-    document.querySelector(`[data-content="${valueFiltered.toLowerCase()}"]`).dataset.hidden = false;
-  });
-}
-
-document.querySelector('.container-dropdown').addEventListener('input', (event) => {
-  const category = event.target.getAttribute('value').toLowerCase(); // ingredient, appareils, ustensils
-  const targetValue = event.target.value.toLowerCase();
-  const nodeListOfElementInDropdown = document.querySelectorAll(`[data-category="${category}"]`);
-  const newArrayFiltered = filteringArrayDropdownInput(category, targetValue);
-
-  displayContentOfDropdown(newArrayFiltered, nodeListOfElementInDropdown, category);
+    isADropdownOpen.isOpen = isOpenToReturn;
+    isADropdownOpen.category = categoryToReturn;
+  }
 });
