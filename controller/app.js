@@ -8,8 +8,6 @@ const objectOfArraysForDropdown = {
 
 const toCompareForTags = [];
 
-const tagChecked = [];
-
 const isADropdownOpen = {
   isOpen: false,
   category: '',
@@ -81,7 +79,7 @@ function dropdownHTMLGenerator(key) {
         <div class="row">
           <div class="btn-group p-0">
             <button class="col-11 col-md-9 btn btn-secondary btn-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" type="button" data-category="${key}">${key.charAt(0).toUpperCase() + key.slice(1)}</button>
-            <input class="col-11 text-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 rounded-star" data-category="${key}" data-hidden="true" placeholder="Rechercher parmis les ${key}">
+            <input class="col-11 text-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 rounded-start" data-category="${key}" data-hidden="true" placeholder="Rechercher parmis les ${key}">
             <button class="col btn btn-secondary dropdown-toggle dropdown-toggle-split bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" id="dropdownMenuButton" type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" data-category="${key}"></button>
             <form class="dropdown-menu bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton" data-category="${key}">
                 <div class="d-flex flex-wrap" data-category="${key}" data-color="${colorsOfDropwdown[countForColorsOfDropdown]}">
@@ -244,11 +242,11 @@ function openCloseDropdown(category, openClose) {
 }
 
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
-  if (event.target.tagName === 'BUTTON') {
-    const targetCategory = event.target.dataset.category;
-    let isOpenToReturn = true;
-    let categoryToReturn = targetCategory;
+  const targetCategory = event.target.dataset.category;
+  let isOpenToReturn = true;
+  let categoryToReturn = targetCategory;
 
+  if (event.target.tagName === 'BUTTON') {
     if (isADropdownOpen.isOpen) {
       if (isADropdownOpen.category === targetCategory) {
         openCloseDropdown(targetCategory, false);
@@ -264,5 +262,30 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
 
     isADropdownOpen.isOpen = isOpenToReturn;
     isADropdownOpen.category = categoryToReturn;
+  }
+
+  if (event.target.tagName === 'A') {
+    const contentOfTag = event.target.dataset.content;
+    const search = new Searching(1, 2, contentOfTag);
+
+    // add or remove tag from DOM
+    search.toggleTag();
+
+    // closing dropdown
+    openCloseDropdown(targetCategory, false);
+    isADropdownOpen.isOpen = false;
+    isADropdownOpen.category = '';
+  }
+});
+
+
+document.querySelector('.container-tag').addEventListener('click', (event) => {
+  // while I click on the closing cross of a tag, it remove the concerned tag
+  if (event.target.tagName === 'IMG') {
+    const contentOfTag = event.target.parentNode.dataset.content;
+    const search = new Searching('', '', contentOfTag);
+
+    // add or remove tag from DOM
+    search.toggleTag();
   }
 });
