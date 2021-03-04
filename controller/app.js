@@ -244,9 +244,8 @@ function openCloseDropdown(category, openClose) {
 }
 
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
-  const targetCategory = event.target.dataset.category;
-
   if (event.target.tagName === 'BUTTON') {
+    const targetCategory = event.target.dataset.category;
     let isOpenToReturn = true;
     let categoryToReturn = targetCategory;
 
@@ -265,9 +264,5 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
 
     isADropdownOpen.isOpen = isOpenToReturn;
     isADropdownOpen.category = categoryToReturn;
-  } else if (event.target.tagName === 'A') {
-    openCloseDropdown(targetCategory, false);
-    isADropdownOpen.isOpen = false;
-    isADropdownOpen.category = '';
   }
 });
