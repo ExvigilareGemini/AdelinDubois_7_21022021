@@ -1,12 +1,10 @@
-const arrayOfObjetForSearch = [];
+const arrayOfRecipes = [];
 
 const objectOfArraysForDropdown = {
   ingredients: [],
   appareils: [],
   ustensils: [],
 };
-
-const toCompareForTags = [];
 
 const isADropdownOpen = {
   isOpen: false,
@@ -15,6 +13,8 @@ const isADropdownOpen = {
 
 const colorsOfDropwdown = ['primary', 'info', 'warning'];
 let countForColorsOfDropdown = -1;
+
+const arrayOfObjectForFiltering = [];
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
@@ -26,7 +26,7 @@ let countForColorsOfDropdown = -1;
 
 // populate arrays ingredient, appareils & ustensils in objectOfArraysForDropdown
 function populateObjectOfArraysForDropdown() {
-  arrayOfObjetForSearch.forEach((el) => {
+  arrayOfRecipes.forEach((el) => {
     // populate ingredient[]
     el.ingredients.forEach((ingredientArray) => {
       let isInArray = false;
@@ -79,9 +79,9 @@ function dropdownHTMLGenerator(key) {
         <div class="row">
           <div class="btn-group p-0">
             <button class="col-11 col-md-9 btn btn-secondary btn-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" type="button" data-category="${key}">${key.charAt(0).toUpperCase() + key.slice(1)}</button>
-            <input class="col-11 text-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 rounded-start" data-category="${key}" data-hidden="true" placeholder="Rechercher parmis les ${key}">
+            <input class="col-11 text-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 rounded-start" data-category="${key}" data-hidden="true"" placeholder="Rechercher parmis les ${key}">
             <button class="col btn btn-secondary dropdown-toggle dropdown-toggle-split bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" id="dropdownMenuButton" type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" data-category="${key}"></button>
-            <form class="dropdown-menu bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white" aria-labelledby="dropdownMenuButton" data-category="${key}">
+            <form class="dropdown-menu bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white w-100" aria-labelledby="dropdownMenuButton" data-category="${key}">
                 <div class="d-flex flex-wrap" data-category="${key}" data-color="${colorsOfDropwdown[countForColorsOfDropdown]}">
                     ${objectOfArraysForDropdown[key].map((el) => `
                     <a class="w-item dropdown-item text-truncate" data-category="${key}" data-content="${el.toLowerCase()}" href="#" data-category="${key}">${el}</a>
@@ -108,8 +108,8 @@ function dropdownHTMLCompiler() {
 
 // F04
 // Create the array of object used for the search functionnality
-function createArrayOfObjectsForSearch(data) {
-  arrayOfObjetForSearch.push({
+function populateArrayOfObjectsForSearch(data) {
+  arrayOfRecipes.push({
     id: data.id,
     title: data.name,
     ingredients: data.ingredients,
@@ -134,7 +134,7 @@ function displayIfNotUndefined(value) {
 // call F04 to create th array of object used for the searching
 // argument: object photographer from data.json
 function cardsHTMLGenerator(data) {
-  createArrayOfObjectsForSearch(data);
+  populateArrayOfObjectsForSearch(data);
   return `
           <div class="col mt-3">
             <div class="card h-100" data-id="${data.id}">
@@ -152,7 +152,6 @@ function cardsHTMLGenerator(data) {
                         <div class="container col-6">
                             <p class="truncate-multilign">${data.description}</p>
                         </div>
-                            
                     </div>
                 </div>
             </div>
@@ -170,15 +169,18 @@ function cardHTMLCompiler(data) {
 // _________________________________________________________________________________________________
 // FILLING DATAS
 
-function populateArrayToCompareForTags() {
-  arrayOfObjetForSearch.forEach((el) => {
-    const arrayToPush = [];
-    arrayToPush.push(el.appareils);
-    el.ustensils.forEach((ustensil) => arrayToPush.push(ustensil));
-    el.ingredients.forEach((ingredient) => arrayToPush.push(ingredient.ingredient));
-    toCompareForTags.push({
+function populateArrayForFiltering() {
+  arrayOfRecipes.forEach((el) => {
+    const ustensildOfObj = el.ustensils.join('|');
+    const ingredientsOfObject = el.ingredients.map((a) => a.ingredient.toLowerCase()).join('|');
+
+    arrayOfObjectForFiltering.push({
       id: el.id,
-      values: arrayToPush,
+      title: el.title,
+      ingredients: ingredientsOfObject,
+      description: el.description,
+      appareils: el.appareils,
+      ustensils: ustensildOfObj,
     });
   });
 }
@@ -194,7 +196,7 @@ function insertCreatedHTML(data) {
   document.querySelector('.container-cards').insertAdjacentHTML('afterbegin', cardHTMLCompiler(data));
   populateObjectOfArraysForDropdown();
   document.querySelector('.container-dropdown').insertAdjacentHTML('beforeend', dropdownHTMLCompiler());
-  populateArrayToCompareForTags();
+  populateArrayForFiltering();
 }
 
 // F09
@@ -241,6 +243,23 @@ function openCloseDropdown(category, openClose) {
   biggerContainer(category, openClose);
 }
 
+function initDisplayingOfElements(trueOrFalse, className, isParent) {
+  if (isParent) {
+    document.querySelectorAll(`.${className}`).forEach((el) => {
+      el.parentNode.dataset.hidden = trueOrFalse;
+    });
+  } else {
+    document.querySelectorAll(`.${className}`).forEach((el) => {
+      el.dataset.hidden = trueOrFalse;
+    });
+  }
+}
+
+// _________________________________________________________________________________________________
+// _________________________________________________________________________________________________
+// EVENTS
+// _________________________________________________________________________________________________
+
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
   const targetCategory = event.target.dataset.category;
   let isOpenToReturn = true;
@@ -264,12 +283,17 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
     isADropdownOpen.category = categoryToReturn;
   }
 
+  // TAG events
   if (event.target.tagName === 'A') {
     const contentOfTag = event.target.dataset.content;
-    const search = new Searching(1, 2, contentOfTag);
+    const whichCategoryIsIt = event.target.dataset.category;
+    const search = new Searching(contentOfTag, whichCategoryIsIt, contentOfTag);
+
+    console.log(event.target);
 
     // add or remove tag from DOM
     search.toggleTag();
+    search.filterContent();
 
     // closing dropdown
     openCloseDropdown(targetCategory, false);
@@ -278,14 +302,38 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
   }
 });
 
-
+// CLOSING CROSS TAG
 document.querySelector('.container-tag').addEventListener('click', (event) => {
   // while I click on the closing cross of a tag, it remove the concerned tag
   if (event.target.tagName === 'IMG') {
     const contentOfTag = event.target.parentNode.dataset.content;
-    const search = new Searching('', '', contentOfTag);
-
+    const whichCategoryIsIt = event.target.parentNode.dataset.category;
+    const search = new Searching('', whichCategoryIsIt, contentOfTag);
     // add or remove tag from DOM
     search.toggleTag();
+    search.filterContent();
+  }
+});
+
+document.querySelector('.container-dropdown').addEventListener('input', (event) => {
+  const lengthOfSearching = event.target.selectionEnd;
+  const valueOfSearch = event.target.value;
+  const whichInputIsIt = event.target.dataset.category;
+  const search = new Searching(valueOfSearch, whichInputIsIt, '');
+
+  search.filterContent();
+});
+
+// MAIN INPUT
+document.querySelector('.search-entry').addEventListener('input', (event) => {
+  const lengthOfSearching = event.target.selectionEnd;
+  const valueOfSearch = event.target.value;
+  const search = new Searching(valueOfSearch, '', '');
+
+  if (lengthOfSearching > 2) {
+    search.filterContent();
+  } else {
+    initDisplayingOfElements(false, 'card', true);
+    initDisplayingOfElements(false, 'dropdown-item', false);
   }
 });
