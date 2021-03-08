@@ -2,13 +2,13 @@
 function comparingString(elementToCompare, actualSearch) {
   let returnValue;
   // si le titre contient la recherche actuelle
-  if (elementToCompare.title.toLowerCase().search(actualSearch) !== -1) {
+  if (elementToCompare.title.toLowerCase().includes(actualSearch)) {
     returnValue = elementToCompare;
-  } else if (elementToCompare.description.toLowerCase().search(actualSearch) !== -1) {
+  } else if (elementToCompare.description.toLowerCase().includes(actualSearch)) {
     returnValue = elementToCompare;
   }
   elementToCompare.ingredients.forEach((el) => {
-    if (el.ingredient.toLowerCase().search(actualSearch) !== -1) {
+    if (el.ingredient.toLowerCase().includes(actualSearch)) {
       returnValue = elementToCompare;
     }
   });
