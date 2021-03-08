@@ -1,9 +1,9 @@
 const tagChecked = [];
-const propertyToSearchForMainFiltering = ['title', 'description', 'ingredients'];
-const dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
-let filteredArray = [];
-let filteredArrayWithTags = [];
+let filteredArrayOfRecipes = [];
+let filteredArrayOfRecipesWithTags = [];
 const filteredObjectOfArrayForDropdown = {};
+
+console.log('Main branch');
 
 class Searching {
   constructor(searchingValue, originOfSearch, tagSelected, isItATagClick) {
@@ -11,6 +11,9 @@ class Searching {
     this.originOfSearch = originOfSearch;
     this.tagSelected = tagSelected;
     this.isItATagClick = isItATagClick;
+
+    this.mainFilteringCategories = ['title', 'description', 'ingredients'];
+    this.dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
   }
 
   // toggle tag and add/remove tag datas in tagChecked = []
@@ -37,20 +40,19 @@ class Searching {
 
   filterRecipesWithMainInput() {
     if (this.originOfSearch === '') {
-      filteredArray = arrayOfObjectForFiltering.filter((obj) => propertyToSearchForMainFiltering.some((prop) => this.isInIt(obj, prop, this.searchingValue)));
+      filteredArrayOfRecipes = arrayOfObjectForFiltering.filter((obj) => this.mainFilteringCategories.some((prop) => this.isInIt(obj, prop, this.searchingValue)));
     }
-    console.log(filteredArray);
   }
 
   filterRecipesWithTags() {
-    if (filteredArray.length === 0) {
+    if (filteredArrayOfRecipes.length === 0) {
       if (this.isItATagClick === true) {
         // eslint-disable-next-line no-undef
-        filteredArray = arrayOfObjectForFiltering;
+        filteredArrayOfRecipes = arrayOfObjectForFiltering;
       }
     }
 
-    filteredArrayWithTags = filteredArray.filter((obj) => {
+    filteredArrayOfRecipesWithTags = filteredArrayOfRecipes.filter((obj) => {
       let isAllTagInIt = true;
 
       tagChecked.forEach((tag) => {
@@ -64,8 +66,8 @@ class Searching {
 
   // filtre le contenu des dropdown basé sur les recettes affichée
   filterArrayForDropdownWithDisplayedCards() {
-    dropdownCategories.forEach((cat) => {
-      filteredObjectOfArrayForDropdown[cat] = objectOfArraysForDropdown[cat].filter((el) => filteredArrayWithTags.some((obj) => this.isInIt(obj, cat, el)));
+    this.dropdownCategories.forEach((cat) => {
+      filteredObjectOfArrayForDropdown[cat] = objectOfArraysForDropdown[cat].filter((el) => filteredArrayOfRecipesWithTags.some((obj) => this.isInIt(obj, cat, el)));
     });
   }
 
@@ -79,7 +81,7 @@ class Searching {
   refreshDropdownContent() {
     initDisplayingOfElements(true, 'dropdown-item', false);
 
-    dropdownCategories.forEach((cat) => {
+    this.dropdownCategories.forEach((cat) => {
       filteredObjectOfArrayForDropdown[cat].forEach((el) => {
         document.querySelector(`.dropdown-item[data-category="${cat}"][data-content="${el.toLowerCase()}"]`).dataset.hidden = false;
       });
@@ -90,13 +92,13 @@ class Searching {
   refreshCards() {
     initDisplayingOfElements(true, 'card', true);
 
-    if (filteredArrayWithTags.length === 0) {
-      filteredArray.forEach((el) => {
+    if (filteredArrayOfRecipesWithTags.length === 0) {
+      filteredArrayOfRecipesWithTags.forEach((el) => {
         document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
       });
       document.querySelector('.empty-message').dataset.hidden = false;
     } else {
-      filteredArrayWithTags.forEach((el) => {
+      filteredArrayOfRecipesWithTags.forEach((el) => {
         document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
       });
       document.querySelector('.empty-message').dataset.hidden = true;
@@ -110,6 +112,7 @@ class Searching {
     this.filterDropdownContentWithDropdownInput();
     this.refreshDropdownContent();
     this.refreshCards();
-    console.log(filteredArrayWithTags);
+    console.log(filteredArrayOfRecipes);
+    console.log(filteredArrayOfRecipesWithTags);
   }
 }
