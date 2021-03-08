@@ -287,9 +287,7 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
   if (event.target.tagName === 'A') {
     const contentOfTag = event.target.dataset.content;
     const whichCategoryIsIt = event.target.dataset.category;
-    const search = new Searching(contentOfTag, whichCategoryIsIt, contentOfTag);
-
-    console.log(event.target);
+    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
 
     // add or remove tag from DOM
     search.toggleTag();
@@ -308,18 +306,18 @@ document.querySelector('.container-tag').addEventListener('click', (event) => {
   if (event.target.tagName === 'IMG') {
     const contentOfTag = event.target.parentNode.dataset.content;
     const whichCategoryIsIt = event.target.parentNode.dataset.category;
-    const search = new Searching('', whichCategoryIsIt, contentOfTag);
+    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
     // add or remove tag from DOM
     search.toggleTag();
     search.filterContent();
   }
 });
 
+// SEARCHING INPUTS
 document.querySelector('.container-dropdown').addEventListener('input', (event) => {
-  const lengthOfSearching = event.target.selectionEnd;
   const valueOfSearch = event.target.value;
   const whichInputIsIt = event.target.dataset.category;
-  const search = new Searching(valueOfSearch, whichInputIsIt, '');
+  const search = new Searching(valueOfSearch, whichInputIsIt, '', false);
 
   search.filterContent();
 });
@@ -328,7 +326,7 @@ document.querySelector('.container-dropdown').addEventListener('input', (event) 
 document.querySelector('.search-entry').addEventListener('input', (event) => {
   const lengthOfSearching = event.target.selectionEnd;
   const valueOfSearch = event.target.value;
-  const search = new Searching(valueOfSearch, '', '');
+  const search = new Searching(valueOfSearch, '', '', false);
 
   if (lengthOfSearching > 2) {
     search.filterContent();

@@ -6,10 +6,11 @@ let filteredArrayWithTags = [];
 const filteredObjectOfArrayForDropdown = {};
 
 class Searching {
-  constructor(searchingValue, originOfSearch, tagSelected) {
+  constructor(searchingValue, originOfSearch, tagSelected, isItATagClick) {
     this.searchingValue = searchingValue.toLowerCase();
     this.originOfSearch = originOfSearch;
     this.tagSelected = tagSelected;
+    this.isItATagClick = isItATagClick;
   }
 
   // toggle tag and add/remove tag datas in tagChecked = []
@@ -26,90 +27,89 @@ class Searching {
               </span>
               `);
     }
-    // console.log('tag checked :');
-    // console.log(tagChecked);
   }
 
   // return true if stringIsIncluded is includes in objectForSearch[propertyToSearch]
+  // eslint-disable-next-line class-methods-use-this
   isInIt(objectForSearch, propertyToSearch, stringIsIncluded) {
     return objectForSearch[propertyToSearch].toLowerCase().includes(stringIsIncluded.toLowerCase());
   }
 
-  filterRecipesWithInput() {
+  filterRecipesWithMainInput() {
     if (this.originOfSearch === '') {
       filteredArray = arrayOfObjectForFiltering.filter((obj) => propertyToSearchForMainFiltering.some((prop) => this.isInIt(obj, prop, this.searchingValue)));
     }
+    console.log(filteredArray);
   }
 
   filterRecipesWithTags() {
     if (filteredArray.length === 0) {
-      filteredArray = arrayOfObjectForFiltering;
+      if (this.isItATagClick === true) {
+        // eslint-disable-next-line no-undef
+        filteredArray = arrayOfObjectForFiltering;
+      }
     }
 
     filteredArrayWithTags = filteredArray.filter((obj) => {
-      if (tagChecked.length > 0) {
-        let isAllTagIdInIt = true;
+      let isAllTagInIt = true;
 
-        tagChecked.forEach((tag) => {
-          if (!this.isInIt(obj, tag.origin, tag.value)) {
-            isAllTagIdInIt = false;
-          }
-        });
-        return isAllTagIdInIt;
-      }
-      return true;
+      tagChecked.forEach((tag) => {
+        if (!this.isInIt(obj, tag.origin, tag.value)) {
+          isAllTagInIt = false;
+        }
+      });
+      return isAllTagInIt;
     });
   }
 
   // filtre le contenu des dropdown basé sur les recettes affichée
   filterArrayForDropdownWithDisplayedCards() {
     dropdownCategories.forEach((cat) => {
-      filteredObjectOfArrayForDropdown[cat] = objectOfArraysForDropdown[cat].filter((el) => filteredArray.some((obj) => this.isInIt(obj, cat, el)));
+      filteredObjectOfArrayForDropdown[cat] = objectOfArraysForDropdown[cat].filter((el) => filteredArrayWithTags.some((obj) => this.isInIt(obj, cat, el)));
     });
   }
 
   filterDropdownContentWithDropdownInput() {
     if (this.originOfSearch !== '') {
       filteredObjectOfArrayForDropdown[this.originOfSearch] = filteredObjectOfArrayForDropdown[this.originOfSearch].filter((el) => el.toLowerCase().includes(this.searchingValue));
-      console.log(this.originOfSearch);
+    }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  refreshDropdownContent() {
+    initDisplayingOfElements(true, 'dropdown-item', false);
+
+    dropdownCategories.forEach((cat) => {
+      filteredObjectOfArrayForDropdown[cat].forEach((el) => {
+        document.querySelector(`.dropdown-item[data-category="${cat}"][data-content="${el.toLowerCase()}"]`).dataset.hidden = false;
+      });
+    });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  refreshCards() {
+    initDisplayingOfElements(true, 'card', true);
+
+    if (filteredArrayWithTags.length === 0) {
+      filteredArray.forEach((el) => {
+        document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
+      });
+      document.querySelector('.empty-message').dataset.hidden = false;
+    } else {
+      filteredArrayWithTags.forEach((el) => {
+        document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
+      });
+      document.querySelector('.empty-message').dataset.hidden = true;
     }
   }
 
   filterContent() {
-    this.filterRecipesWithInput();
+    this.filterRecipesWithMainInput();
     this.filterRecipesWithTags();
     this.filterArrayForDropdownWithDisplayedCards();
     this.filterDropdownContentWithDropdownInput();
     this.refreshDropdownContent();
     this.refreshCards();
-    console.log('filteredArray :');
-    console.log(filteredArray);
-    console.log('filteredArrayWithTags :');
     console.log(filteredArrayWithTags);
-    console.log('filteredObjectOfArrayForDropdown :');
-    console.log(filteredObjectOfArrayForDropdown);
-  }
-
-  refreshDropdownContent() {
-    initDisplayingOfElements(true, 'dropdown-item', false);
-    console.log(1);
-    dropdownCategories.forEach((cat) => {
-      filteredObjectOfArrayForDropdown[cat].forEach((el) => {
-        document.querySelector(`.dropdown-item[data-content="${el.toLowerCase()}"]`).dataset.hidden = false;
-      });
-    });
-  }
-
-  refreshCards() {
-    initDisplayingOfElements(true, 'card', true);
-    if (filteredArrayWithTags.length === 0) {
-      filteredArray.forEach((el) => {
-        document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
-      });
-    } else {
-      filteredArrayWithTags.forEach((el) => {
-        document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
-      });
-    }
   }
 }
