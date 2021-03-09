@@ -1,5 +1,7 @@
 const arrayOfRecipes = [];
 
+const tagChecked = [];
+
 const objectOfArraysForDropdown = {
   ingredients: [],
   appareils: [],
@@ -15,6 +17,11 @@ const colorsOfDropwdown = ['primary', 'info', 'warning'];
 let countForColorsOfDropdown = -1;
 
 const arrayOfObjectForFiltering = [];
+
+const dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
+
+let isItAClosingTagClick = false;
+let valueIsComingFromMainInput = false;
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
@@ -243,22 +250,72 @@ function openCloseDropdown(category, openClose) {
   biggerContainer(category, openClose);
 }
 
-function initDisplayingOfElements(trueOrFalse, className, isParent) {
-  if (isParent) {
-    document.querySelectorAll(`.${className}`).forEach((el) => {
-      el.parentNode.dataset.hidden = trueOrFalse;
+function displayContentOfDropdown(newArrayFiltered, categoryOfTarget) {
+  document.querySelectorAll('.dropdown-item').forEach((el) => {
+    el.dataset.hidden = true;
+  });
+
+  newArrayFiltered.forEach((valueFiltered) => {
+    document.querySelector(`.dropdown-item[data-content="${valueFiltered.toLowerCase()}"]`).dataset.hidden = false;
+  });
+}
+
+function displayContentOfDropdowns() {
+  dropdownContentToDisplay.forEach((dropdownContent) => {
+    document.querySelectorAll(`.dropdown-item[data-content="${dropdownContent}"]`).forEach((dropItem) => {
+      dropItem.dataset.hidden = false;
     });
+  });
+}
+
+function toggleTag(contentOfTag, categoryOfTag) {
+  if (tagChecked.some((el) => el.value.includes(contentOfTag))) {
+    const indexOfTagToRemove = tagChecked.findIndex((el) => el.value === contentOfTag);
+    tagChecked.splice(indexOfTagToRemove, 1);
+    document.querySelector(`[data-content="${contentOfTag}"]`).remove();
   } else {
-    document.querySelectorAll(`.${className}`).forEach((el) => {
-      el.dataset.hidden = trueOrFalse;
-    });
+    tagChecked.push({ origin: categoryOfTag, value: contentOfTag });
+    document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
+                <span class="badge bg-primary p-2 mt-3" data-category="${categoryOfTag}" data-content="${contentOfTag}">${contentOfTag}
+                  <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
+                </span>
+                `);
   }
+}
+
+function filterContent(actualSearch) {
+  const newArrayFiltered = createNewArrayByComparingStrings(actualSearch);
+
+  document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
+  // display card with id corresponding to ids in filtered array
+  newArrayFiltered.forEach((el) => {
+    document.querySelector(`[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
+  });
+
+  filterDropdownContentToDisplay(newArrayFiltered);
+  displayContentOfDropdowns();
 }
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
 // EVENTS
 // _________________________________________________________________________________________________
+
+document.querySelector('.search-entry').addEventListener('input', () => {
+  const actualSearch = document.querySelector('.search-entry').value.toLowerCase();
+  valueIsComingFromMainInput = true;
+  filterContent(actualSearch);
+});
+
+document.querySelector('.container-dropdown').addEventListener('input', (event) => {
+  const categoryOfTarget = event.target.dataset.category; // ingredient, appareils, ustensils
+  const targetValue = event.target.value.toLowerCase();
+
+  dropdownCategories.forEach((cat) => {
+    const newArrayFiltered = filteringArrayDropdownInput(cat, targetValue);
+    displayContentOfDropdown(newArrayFiltered, cat);
+  });
+});
 
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
   const targetCategory = event.target.dataset.category;
@@ -286,12 +343,12 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
   // TAG events
   if (event.target.tagName === 'A') {
     const contentOfTag = event.target.dataset.content;
-    const whichCategoryIsIt = event.target.dataset.category;
-    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
+    const categoryOfTag = event.target.dataset.category;
+    // const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
 
-    // add or remove tag from DOM
-    search.toggleTag();
-    search.filterContent();
+    // // add or remove tag from DOM
+    toggleTag(contentOfTag, categoryOfTag);
+    filterContent(contentOfTag);
 
     // closing dropdown
     openCloseDropdown(targetCategory, false);
@@ -305,33 +362,11 @@ document.querySelector('.container-tag').addEventListener('click', (event) => {
   // while I click on the closing cross of a tag, it remove the concerned tag
   if (event.target.tagName === 'IMG') {
     const contentOfTag = event.target.parentNode.dataset.content;
-    const whichCategoryIsIt = event.target.parentNode.dataset.category;
-    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
+    const categoryOfTag = event.target.parentNode.dataset.category;
+
     // add or remove tag from DOM
-    search.toggleTag();
-    search.filterContent();
-  }
-});
-
-// SEARCHING INPUTS
-document.querySelector('.container-dropdown').addEventListener('input', (event) => {
-  const valueOfSearch = event.target.value;
-  const whichInputIsIt = event.target.dataset.category;
-  const search = new Searching(valueOfSearch, whichInputIsIt, '', false);
-
-  search.filterContent();
-});
-
-// MAIN INPUT
-document.querySelector('.search-entry').addEventListener('input', (event) => {
-  const lengthOfSearching = event.target.selectionEnd;
-  const valueOfSearch = event.target.value;
-  const search = new Searching(valueOfSearch, '', '', false);
-
-  if (lengthOfSearching > 2) {
-    search.filterContent();
-  } else {
-    initDisplayingOfElements(false, 'card', true);
-    initDisplayingOfElements(false, 'dropdown-item', false);
+    toggleTag(contentOfTag, categoryOfTag);
+    isItAClosingTagClick = true;
+    filterContent(contentOfTag);
   }
 });
