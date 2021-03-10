@@ -260,6 +260,29 @@ function initDisplayingOfElements(trueOrFalse, className, isParent) {
 // EVENTS
 // _________________________________________________________________________________________________
 
+// MAIN INPUT
+document.querySelector('.search-entry').addEventListener('input', (event) => {
+  const valueOfSearch = event.target.value;
+  const search = new Searching(valueOfSearch, '', '', false);
+
+  console.log(valueOfSearch);
+
+  search.filterContent();
+});
+
+// CLOSING CROSS TAG
+document.querySelector('.container-tag').addEventListener('click', (event) => {
+  // while I click on the closing cross of a tag, it remove the concerned tag
+  if (event.target.tagName === 'IMG') {
+    const contentOfTag = event.target.parentNode.dataset.content;
+    const whichCategoryIsIt = event.target.parentNode.dataset.category;
+    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
+    // add or remove tag from DOM
+    search.toggleTag();
+    search.filterContent();
+  }
+});
+
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
   const targetCategory = event.target.dataset.category;
   let isOpenToReturn = true;
@@ -300,19 +323,6 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
   }
 });
 
-// CLOSING CROSS TAG
-document.querySelector('.container-tag').addEventListener('click', (event) => {
-  // while I click on the closing cross of a tag, it remove the concerned tag
-  if (event.target.tagName === 'IMG') {
-    const contentOfTag = event.target.parentNode.dataset.content;
-    const whichCategoryIsIt = event.target.parentNode.dataset.category;
-    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
-    // add or remove tag from DOM
-    search.toggleTag();
-    search.filterContent();
-  }
-});
-
 // SEARCHING INPUTS
 document.querySelector('.container-dropdown').addEventListener('input', (event) => {
   const valueOfSearch = event.target.value;
@@ -320,18 +330,4 @@ document.querySelector('.container-dropdown').addEventListener('input', (event) 
   const search = new Searching(valueOfSearch, whichInputIsIt, '', false);
 
   search.filterContent();
-});
-
-// MAIN INPUT
-document.querySelector('.search-entry').addEventListener('input', (event) => {
-  const lengthOfSearching = event.target.selectionEnd;
-  const valueOfSearch = event.target.value;
-  const search = new Searching(valueOfSearch, '', '', false);
-
-  if (lengthOfSearching > 2) {
-    search.filterContent();
-  } else {
-    initDisplayingOfElements(false, 'card', true);
-    initDisplayingOfElements(false, 'dropdown-item', false);
-  }
 });

@@ -40,14 +40,17 @@ class Searching {
 
   filterRecipesWithMainInput() {
     if (this.originOfSearch === '') {
-      filteredArrayOfRecipes = arrayOfObjectForFiltering.filter((obj) => this.mainFilteringCategories.some((prop) => this.isInIt(obj, prop, this.searchingValue)));
+      if (this.searchingValue.length > 2) {
+        filteredArrayOfRecipes = arrayOfObjectForFiltering.filter((obj) => this.mainFilteringCategories.some((prop) => this.isInIt(obj, prop, this.searchingValue)));
+      } else {
+        filteredArrayOfRecipes = arrayOfObjectForFiltering;
+      }
     }
   }
 
   filterRecipesWithTags() {
     if (filteredArrayOfRecipes.length === 0) {
       if (this.isItATagClick === true) {
-        // eslint-disable-next-line no-undef
         filteredArrayOfRecipes = arrayOfObjectForFiltering;
       }
     }
@@ -112,7 +115,5 @@ class Searching {
     this.filterDropdownContentWithDropdownInput();
     this.refreshDropdownContent();
     this.refreshCards();
-    console.log(filteredArrayOfRecipes);
-    console.log(filteredArrayOfRecipesWithTags);
   }
 }
