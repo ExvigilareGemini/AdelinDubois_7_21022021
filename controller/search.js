@@ -43,12 +43,18 @@ function filterRecipesWithTags(arrayToFilterWithTags) {
 function createNewArrayByComparingStrings(actualSearch) {
   let arrayToFilterWithTags = [];
   if (isItAClosingTagClick) {
-    arrayToFilterWithTags = filteredArrayWithMainInput;
+    if (mainInputLessThan3Caracters) {
+      arrayToFilterWithTags = arrayOfObjectForFiltering;
+    } else {
+      arrayToFilterWithTags = filteredArrayWithMainInput;
+    }
     isItAClosingTagClick = false;
   } else if (valueIsComingFromMainInput) {
     arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => comparingString(el, actualSearch));
     filteredArrayWithMainInput = arrayToFilterWithTags;
     valueIsComingFromMainInput = false;
+  } else if (filteredArrayWithMainInput.length === 0) {
+    arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => comparingString(el, actualSearch));
   } else {
     arrayToFilterWithTags = filteredArrayWithMainInput.filter((el) => comparingString(el, actualSearch));
   }
@@ -57,7 +63,12 @@ function createNewArrayByComparingStrings(actualSearch) {
 }
 
 function filteringArrayDropdownInput(category, targetValue) {
-  const arrayFiltered = objectOfArraysForDropdown[category].filter((el) => el.toLowerCase().includes(targetValue));
+  let arrayFiltered = [];
+  if (dropdownContentToDisplay.length === 0) {
+    arrayFiltered = objectOfArraysForDropdown[category].filter((el) => el.toLowerCase().includes(targetValue));
+  } else {
+    arrayFiltered = dropdownContentToDisplay.filter((el) => el.toLowerCase().includes(targetValue));
+  }
   return arrayFiltered;
 }
 

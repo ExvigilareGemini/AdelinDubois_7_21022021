@@ -22,6 +22,7 @@ const dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
 
 let isItAClosingTagClick = false;
 let valueIsComingFromMainInput = false;
+let mainInputLessThan3Caracters = true;
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
@@ -251,10 +252,9 @@ function openCloseDropdown(category, openClose) {
 }
 
 function displayContentOfDropdown(newArrayFiltered, categoryOfTarget) {
-  document.querySelectorAll('.dropdown-item').forEach((el) => {
+  document.querySelectorAll(`.dropdown-item[data-category="${categoryOfTarget}"]`).forEach((el) => {
     el.dataset.hidden = true;
   });
-
   newArrayFiltered.forEach((valueFiltered) => {
     document.querySelector(`.dropdown-item[data-content="${valueFiltered.toLowerCase()}"]`).dataset.hidden = false;
   });
@@ -303,18 +303,22 @@ function filterContent(actualSearch) {
 
 document.querySelector('.search-entry').addEventListener('input', () => {
   const actualSearch = document.querySelector('.search-entry').value.toLowerCase();
-  valueIsComingFromMainInput = true;
-  filterContent(actualSearch);
+  if (actualSearch.length > 2) {
+    valueIsComingFromMainInput = true;
+    mainInputLessThan3Caracters = false;
+    filterContent(actualSearch);
+  } else {
+    mainInputLessThan3Caracters = true;
+    document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = false; });
+  }
 });
 
 document.querySelector('.container-dropdown').addEventListener('input', (event) => {
   const categoryOfTarget = event.target.dataset.category; // ingredient, appareils, ustensils
   const targetValue = event.target.value.toLowerCase();
 
-  dropdownCategories.forEach((cat) => {
-    const newArrayFiltered = filteringArrayDropdownInput(cat, targetValue);
-    displayContentOfDropdown(newArrayFiltered, cat);
-  });
+  const newArrayFiltered = filteringArrayDropdownInput(categoryOfTarget, targetValue);
+  displayContentOfDropdown(newArrayFiltered, categoryOfTarget);
 });
 
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
