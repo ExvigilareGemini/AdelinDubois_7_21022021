@@ -288,9 +288,16 @@ function filterContent(actualSearch) {
 
   document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
   // display card with id corresponding to ids in filtered array
-  newArrayFiltered.forEach((el) => {
-    document.querySelector(`[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
-  });
+  if (newArrayFiltered.length === 0) {
+    document.querySelector('.empty-message').dataset.hidden = false;
+  }
+  else {
+    document.querySelector('.empty-message').dataset.hidden = true;
+    newArrayFiltered.forEach((el) => {
+      document.querySelector(`[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
+    });
+  }
+
 
   filterDropdownContentToDisplay(newArrayFiltered);
   displayContentOfDropdowns();
