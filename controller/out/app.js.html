@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const arrayOfRecipes = [];
+
+const objectOfArraysForDropdown = {
+  ingredients: [],
+  appareils: [],
+  ustensils: [],
+};
+
+const isADropdownOpen = {
+  isOpen: false,
+  category: '',
+};
+
+const colorsOfDropwdown = ['primary', 'info', 'warning'];
+let countForColorsOfDropdown = -1;
+
+const arrayOfObjectForFiltering = [];
+
+// _________________________________________________________________________________________________
+// _________________________________________________________________________________________________
+// DYNAMIC CREATION OF HTML &amp; FILLING DATAS
+// _________________________________________________________________________________________________
+
+// _________________________________________________________________________________________________
+// FILLING DATAS
+
+/**
+ * Populate the array of object arrayOfRecipes
+ *
+ * @param {object} data Object from recipes.json
+ */
+function populateArrayOfRecipes(data) {
+  arrayOfRecipes.push({
+    id: data.id,
+    title: data.name,
+    ingredients: data.ingredients,
+    description: data.description,
+    appareils: data.appliance,
+    ustensils: data.ustensils,
+  });
+}
+
+/**
+ * Populate arrays ingredient, appareils &amp; ustensils in objectOfArraysForDropdown with arrayOfRecipes
+ */
+function populateObjectOfArraysForDropdown() {
+  arrayOfRecipes.forEach((el) => {
+    // populate ingredient[]
+    el.ingredients.forEach((ingredientArray) => {
+      let isInArray = false;
+
+      objectOfArraysForDropdown.ingredients.forEach((ingredientDropdown) => {
+        if (ingredientArray.ingredient === ingredientDropdown) {
+          isInArray = true;
+        }
+      });
+      if (!isInArray) {
+        objectOfArraysForDropdown.ingredients.push(ingredientArray.ingredient);
+      }
+    });
+
+    // populate ustensils[]
+    el.ustensils.forEach((ustensilArray) => {
+      let isInArray = false;
+
+      objectOfArraysForDropdown.ustensils.forEach((ustensilDropdown) => {
+        if (ustensilArray === ustensilDropdown) {
+          isInArray = true;
+        }
+      });
+      if (!isInArray) {
+        objectOfArraysForDropdown.ustensils.push(ustensilArray);
+      }
+    });
+
+    // populate appareil[]
+    let isInArray = false;
+    objectOfArraysForDropdown.appareils.forEach((appareilDropdown) => {
+      if (el.appareils === appareilDropdown) {
+        isInArray = true;
+      }
+    });
+    if (!isInArray) {
+      objectOfArraysForDropdown.appareils.push(el.appareils);
+    }
+  });
+}
+
+/**
+ * Populate the array of object used for the filtering functionnality with arrayOfRecipes
+ */
+function populateArrayForFiltering() {
+  arrayOfRecipes.forEach((el) => {
+    const ustensildOfObj = el.ustensils.join('|');
+    const ingredientsOfObject = el.ingredients.map((a) => a.ingredient.toLowerCase()).join('|');
+
+    arrayOfObjectForFiltering.push({
+      id: el.id,
+      title: el.title,
+      ingredients: ingredientsOfObject,
+      description: el.description,
+      appareils: el.appareils,
+      ustensils: ustensildOfObj,
+    });
+  });
+}
+
+// _________________________________________________________________________________________________
+// CREATION OF DROPDOWNS BUTTON
+
+/**
+ * Creating HTML of a dropdown button, using key param to get datas in objectOfArraysForDropdown
+ *
+ * @param {string} key Name of the category (ingredients, appareils or ustensils)
+ * @returns {string} HTML of a dropdown button
+ */
+function dropdownHTMLGenerator(key) {
+  countForColorsOfDropdown += 1;
+  return `
+    &lt;div class="mt-3 col-12 col-md-3 col-lg-2 dropdown" data-category="${key}">
+      &lt;div class="container p-1">
+        &lt;div class="row">
+          &lt;div class="btn-group p-0">
+            &lt;button class="col-11 col-md-9 btn btn-secondary btn-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" type="button" data-category="${key}">${key.charAt(0).toUpperCase() + key.slice(1)}&lt;/button>
+            &lt;input class="col-11 text-morphing bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0 rounded-start" data-category="${key}" data-hidden="true"" placeholder="Rechercher parmis les ${key}">
+            &lt;button class="col btn btn-secondary dropdown-toggle dropdown-toggle-split bg-${colorsOfDropwdown[countForColorsOfDropdown]} border-0" id="dropdownMenuButton" type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" data-category="${key}">&lt;/button>
+            &lt;form class="dropdown-menu bg-${colorsOfDropwdown[countForColorsOfDropdown]} text-white w-100" aria-labelledby="dropdownMenuButton" data-category="${key}">
+                &lt;div class="d-flex flex-wrap" data-category="${key}" data-color="${colorsOfDropwdown[countForColorsOfDropdown]}">
+                    ${objectOfArraysForDropdown[key].map((el) => `
+                    &lt;a class="w-item dropdown-item text-truncate" data-category="${key}" data-content="${el.toLowerCase()}" href="#" data-category="${key}">${el}&lt;/a>
+                    `).join('')}
+                &lt;/div>
+            &lt;/form>
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+    `;
+}
+
+/**
+ * Fusionning each block of HTML string from function dropdownHTMLGenerator into one
+ *
+ * @returns {string} HTML block of all dropdown
+ */
+function dropdownHTMLFusion() {
+  const keys = Object.keys(objectOfArraysForDropdown);
+  const stringToReturn = keys.map(dropdownHTMLGenerator).join('');
+  return stringToReturn;
+}
+
+// _________________________________________________________________________________________________
+// CREATION OF CARDS
+
+/**
+ * Creating HTML of a card, using object data coming from recipes.json
+ *
+ * @param {object} data Object from recipes.json
+ * @returns {string} HTML of a card
+ */
+function cardsHTMLGenerator(data) {
+  return `
+          &lt;div class="col mt-3">
+            &lt;div class="card h-100" data-id="${data.id}">
+                &lt;img src="./assets/src/OC.jpg" style="height: 230px; width: 100%; display: block;" class="card-img-top fit-img" alt="image">
+                &lt;div class="card-body">
+                    &lt;div class="row">
+                        &lt;h5 class="card-title col">${data.name}&lt;/h5>
+                        &lt;p class="card-text col-4 text-end">&lt;span class="far fa-clock">&lt;/span>&lt;b>${data.time}min&lt;/b>&lt;/p>
+                    &lt;/div>
+                    &lt;div class="row fs-7">
+                        &lt;div class="container col-6">
+                        ${data.ingredients.map((ingredient) => `
+                        &lt;p class=" card-text mb-0">  &lt;b>${ingredient.ingredient}&lt;/b>: ${ingredient.quantity !== undefined ? ingredient.quantity : ''} ${ingredient.unit !== undefined ? ingredient.unit : ''}&lt;/p>`).join('')}
+                        &lt;/div>
+                        &lt;div class="container col-6">
+                            &lt;p class="truncate-multilign">${data.description}&lt;/p>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+          &lt;/div>`;
+}
+
+/**
+ * Fusionning each block of HTML string from function cardsHTMLGenerator into one
+ *
+ * @param {object[]} datas Array of objects from recipes.json
+ * @returns {string} HTML block of all cards
+ */
+function cardHTMLFusion(datas) {
+  return datas.map(cardsHTMLGenerator).join('');
+}
+
+// _________________________________________________________________________________________________
+// INSERTING HTML AND FETCH DATAS
+
+/**
+ * Insert created HTML inside index.html
+ *
+ * @param {object[]} datas Array of objects from recipes.json
+ */
+function insertCreatedHTML(datas) {
+  document.querySelector('.container-cards').insertAdjacentHTML('afterbegin', cardHTMLFusion(datas));
+  document.querySelector('.container-dropdown').insertAdjacentHTML('beforeend', dropdownHTMLFusion());
+}
+
+/**
+ * Function caller, first filling datas then HTML creator
+ *
+ * @param {object[]} datas Array of objects from recipes.json
+ */
+function computingDatas(datas) {
+  datas.forEach((data) => { populateArrayOfRecipes(data); });
+  populateObjectOfArraysForDropdown();
+  populateArrayForFiltering();
+  insertCreatedHTML(datas);
+}
+
+/** Fetch datas about recipes inside recipes.json
+ *
+ */
+function fetchDataToCreateHTML() {
+  fetch('./controller/src/recipes.json')
+    .then((resp) => resp.json())
+    .then((datas) => computingDatas(datas))
+    .catch((error) => console.log(`Erreur : ${error}`));
+}
+
+// _________________________________________________________________________________________________
+// _________________________________________________________________________________________________
+// DROPDOWN DISPLAYING
+// _________________________________________________________________________________________________
+
+/** Making dropdown bigger/smaller when opening/closing dropdown when screen width > 767px
+ *
+ * @param {string} category Category of the dropdown (ingredients, appareils, ustensils)
+ * @param {boolean} openClose True -> opening dropdown | False -> closing dropdown
+ */
+function biggerContainer(category, openClose) {
+  const dropdownContainer = document.querySelector(`.dropdown[data-category="${category}"]`);
+  const mediaQuery = 'screen and (min-width:768px)';
+  const matched = window.matchMedia(mediaQuery).matches;
+
+  if (openClose) {
+    matched ? dropdownContainer.classList.add('w-50') : '';
+  } else {
+    matched ? dropdownContainer.classList.remove('w-50') : '';
+  }
+}
+
+/** Open or close the dropdown corresponding to category
+ *
+ * @param {string} category Category of the dropdown (ingredients, appareils, ustensils)
+ * @param {boolean} openClose True -> opening dropdown | False -> closing dropdown
+ */
+function openCloseDropdown(category, openClose) {
+  const dropdownForm = document.querySelector(`.dropdown-menu[data-category="${category}"]`);
+  const morphingBtn = document.querySelector(`.btn-morphing[data-category="${category}"]`);
+  const morphingText = document.querySelector(`.text-morphing[data-category="${category}"]`);
+
+  dropdownForm.classList.toggle('show');
+  morphingText.dataset.hidden = !openClose;
+  morphingBtn.dataset.hidden = openClose;
+  biggerContainer(category, openClose);
+}
+
+// _________________________________________________________________________________________________
+// _________________________________________________________________________________________________
+// EVENTS
+// _________________________________________________________________________________________________
+
+// MAIN INPUT
+document.querySelector('.search-entry').addEventListener('input', (event) => {
+  const valueOfSearch = event.target.value;
+  const search = new Searching(valueOfSearch, '', '', false);
+
+  search.filterContent();
+});
+
+// CLOSING CROSS TAG
+document.querySelector('.container-tag').addEventListener('click', (event) => {
+  if (event.target.tagName === 'IMG') {
+    const contentOfTag = event.target.parentNode.dataset.content;
+    const whichCategoryIsIt = event.target.parentNode.dataset.category;
+    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
+
+    search.toggleTag();
+    search.filterContent();
+  }
+});
+
+// DROPDOWN CLICK EVENT
+document.querySelector('.container-dropdown').addEventListener('click', (event) => {
+  const targetCategory = event.target.dataset.category;
+  let isOpenToReturn = true;
+  let categoryToReturn = targetCategory;
+
+  // DROPDOWN BUTTON
+  if (event.target.tagName === 'BUTTON') {
+    if (isADropdownOpen.isOpen) {
+      if (isADropdownOpen.category === targetCategory) {
+        openCloseDropdown(targetCategory, false);
+        isOpenToReturn = false;
+        categoryToReturn = '';
+      } else {
+        openCloseDropdown(isADropdownOpen.category, false);
+        openCloseDropdown(targetCategory, true);
+      }
+    } else {
+      openCloseDropdown(targetCategory, true);
+    }
+
+    isADropdownOpen.isOpen = isOpenToReturn;
+    isADropdownOpen.category = categoryToReturn;
+  }
+
+  // TAGS
+  if (event.target.tagName === 'A') {
+    const contentOfTag = event.target.dataset.content;
+    const whichCategoryIsIt = event.target.dataset.category;
+    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
+
+    search.toggleTag();
+    search.filterContent();
+
+    openCloseDropdown(targetCategory, false);
+    isADropdownOpen.isOpen = false;
+    isADropdownOpen.category = '';
+  }
+});
+
+// DROPDOWN INPUTS
+document.querySelector('.container-dropdown').addEventListener('input', (event) => {
+  const valueOfSearch = event.target.value;
+  const whichInputIsIt = event.target.dataset.category;
+  const search = new Searching(valueOfSearch, whichInputIsIt, '', false);
+
+  search.filterContent();
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#biggerContainer">biggerContainer</a></li><li><a href="global.html#cardHTMLFusion">cardHTMLFusion</a></li><li><a href="global.html#cardsHTMLGenerator">cardsHTMLGenerator</a></li><li><a href="global.html#computingDatas">computingDatas</a></li><li><a href="global.html#dropdownHTMLFusion">dropdownHTMLFusion</a></li><li><a href="global.html#dropdownHTMLGenerator">dropdownHTMLGenerator</a></li><li><a href="global.html#fetchDataToCreateHTML">fetchDataToCreateHTML</a></li><li><a href="global.html#insertCreatedHTML">insertCreatedHTML</a></li><li><a href="global.html#openCloseDropdown">openCloseDropdown</a></li><li><a href="global.html#populateArrayForFiltering">populateArrayForFiltering</a></li><li><a href="global.html#populateArrayOfRecipes">populateArrayOfRecipes</a></li><li><a href="global.html#populateObjectOfArraysForDropdown">populateObjectOfArraysForDropdown</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Mar 11 2021 21:14:26 GMT+0100 (heure normale d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

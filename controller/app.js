@@ -18,13 +18,31 @@ const arrayOfObjectForFiltering = [];
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
-// DYNAMIC CREATION OF HTML BASED ON RECIPE.JS.
+// DYNAMIC CREATION OF HTML & FILLING DATAS
 // _________________________________________________________________________________________________
 
 // _________________________________________________________________________________________________
-// CREATION OF DROPDOWNS BUTTON
+// FILLING DATAS
 
-// populate arrays ingredient, appareils & ustensils in objectOfArraysForDropdown
+/**
+ * Populate the array of object arrayOfRecipes
+ *
+ * @param {object} data Object from recipes.json
+ */
+function populateArrayOfRecipes(data) {
+  arrayOfRecipes.push({
+    id: data.id,
+    title: data.name,
+    ingredients: data.ingredients,
+    description: data.description,
+    appareils: data.appliance,
+    ustensils: data.ustensils,
+  });
+}
+
+/**
+ * Populate arrays ingredient, appareils & ustensils in objectOfArraysForDropdown with arrayOfRecipes
+ */
 function populateObjectOfArraysForDropdown() {
   arrayOfRecipes.forEach((el) => {
     // populate ingredient[]
@@ -68,9 +86,34 @@ function populateObjectOfArraysForDropdown() {
   });
 }
 
-// creating HTML of a dropdown button, using key value to gat datas in objectOfArraysForDropdown
-// set the color, title(first letter uppercase) and listing every elements contain in corresponding
-// element (ingredient, appareil et ustensil)
+/**
+ * Populate the array of object used for the filtering functionnality with arrayOfRecipes
+ */
+function populateArrayForFiltering() {
+  arrayOfRecipes.forEach((el) => {
+    const ustensildOfObj = el.ustensils.join('|');
+    const ingredientsOfObject = el.ingredients.map((a) => a.ingredient.toLowerCase()).join('|');
+
+    arrayOfObjectForFiltering.push({
+      id: el.id,
+      title: el.title,
+      ingredients: ingredientsOfObject,
+      description: el.description,
+      appareils: el.appareils,
+      ustensils: ustensildOfObj,
+    });
+  });
+}
+
+// _________________________________________________________________________________________________
+// CREATION OF DROPDOWNS BUTTON
+
+/**
+ * Creating HTML of a dropdown button, using key param to get datas in objectOfArraysForDropdown
+ *
+ * @param {string} key Name of the category (ingredients, appareils or ustensils)
+ * @returns {string} HTML of a dropdown button
+ */
 function dropdownHTMLGenerator(key) {
   countForColorsOfDropdown += 1;
   return `
@@ -95,46 +138,27 @@ function dropdownHTMLGenerator(key) {
     `;
 }
 
-// return compiled html with map and join, using keys of objectOfArraysForDropdown and calling
-// dropdownHTMLGenerator
-function dropdownHTMLCompiler() {
+/**
+ * Fusionning each block of HTML string from function dropdownHTMLGenerator into one
+ *
+ * @returns {string} HTML block of all dropdown
+ */
+function dropdownHTMLFusion() {
   const keys = Object.keys(objectOfArraysForDropdown);
-  const arrayToReturn = keys.map(dropdownHTMLGenerator).join('');
-  return arrayToReturn;
+  const stringToReturn = keys.map(dropdownHTMLGenerator).join('');
+  return stringToReturn;
 }
 
 // _________________________________________________________________________________________________
 // CREATION OF CARDS
 
-// F04
-// Create the array of object used for the search functionnality
-function populateArrayOfObjectsForSearch(data) {
-  arrayOfRecipes.push({
-    id: data.id,
-    title: data.name,
-    ingredients: data.ingredients,
-    description: data.description,
-    appareils: data.appliance,
-    ustensils: data.ustensils,
-  });
-}
-
-// display the value if not undefined
-function displayIfNotUndefined(value) {
-  if (value !== undefined) {
-    return value;
-  }
-
-  return '';
-}
-
-// F05
-// generate html content of 1 photographer displayed (.photograph) using template strings and
-// populate with objectphotographer
-// call F04 to create th array of object used for the searching
-// argument: object photographer from data.json
+/**
+ * Creating HTML of a card, using object data coming from recipes.json
+ *
+ * @param {object} data Object from recipes.json
+ * @returns {string} HTML of a card
+ */
 function cardsHTMLGenerator(data) {
-  populateArrayOfObjectsForSearch(data);
   return `
           <div class="col mt-3">
             <div class="card h-100" data-id="${data.id}">
@@ -147,7 +171,7 @@ function cardsHTMLGenerator(data) {
                     <div class="row fs-7">
                         <div class="container col-6">
                         ${data.ingredients.map((ingredient) => `
-                        <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${displayIfNotUndefined(ingredient.quantity)} ${displayIfNotUndefined(ingredient.unit)}</p>`).join('')}
+                        <p class=" card-text mb-0">  <b>${ingredient.ingredient}</b>: ${ingredient.quantity !== undefined ? ingredient.quantity : ''} ${ingredient.unit !== undefined ? ingredient.unit : ''}</p>`).join('')}
                         </div>
                         <div class="container col-6">
                             <p class="truncate-multilign">${data.description}</p>
@@ -158,55 +182,48 @@ function cardsHTMLGenerator(data) {
           </div>`;
 }
 
-// F06
-// function that create all the block of HTML that is needed to be displayed,
-// takes data and create a new array using .map and F05 (cardsHTMLGenerator)
-// argument: datas from JSON
-function cardHTMLCompiler(data) {
-  return data.map(cardsHTMLGenerator).join('');
-}
-
-// _________________________________________________________________________________________________
-// FILLING DATAS
-
-function populateArrayForFiltering() {
-  arrayOfRecipes.forEach((el) => {
-    const ustensildOfObj = el.ustensils.join('|');
-    const ingredientsOfObject = el.ingredients.map((a) => a.ingredient.toLowerCase()).join('|');
-
-    arrayOfObjectForFiltering.push({
-      id: el.id,
-      title: el.title,
-      ingredients: ingredientsOfObject,
-      description: el.description,
-      appareils: el.appareils,
-      ustensils: ustensildOfObj,
-    });
-  });
+/**
+ * Fusionning each block of HTML string from function cardsHTMLGenerator into one
+ *
+ * @param {object[]} datas Array of objects from recipes.json
+ * @returns {string} HTML block of all cards
+ */
+function cardHTMLFusion(datas) {
+  return datas.map(cardsHTMLGenerator).join('');
 }
 
 // _________________________________________________________________________________________________
 // INSERTING HTML AND FETCH DATAS
 
-// F08
-// function inserting HTML create in F06 (cardHTMLCompiler),
-// then call F07 (isRedirectFromPhotographerPage)
-// argument: is datas form JSON passing to F09 (fetchDataToCreateIndexHTML)
-function insertCreatedHTML(data) {
-  document.querySelector('.container-cards').insertAdjacentHTML('afterbegin', cardHTMLCompiler(data));
-  populateObjectOfArraysForDropdown();
-  document.querySelector('.container-dropdown').insertAdjacentHTML('beforeend', dropdownHTMLCompiler());
-  populateArrayForFiltering();
+/**
+ * Insert created HTML inside index.html
+ *
+ * @param {object[]} datas Array of objects from recipes.json
+ */
+function insertCreatedHTML(datas) {
+  document.querySelector('.container-cards').insertAdjacentHTML('afterbegin', cardHTMLFusion(datas));
+  document.querySelector('.container-dropdown').insertAdjacentHTML('beforeend', dropdownHTMLFusion());
 }
 
-// F09
-// function that get datas in the /src/data.json and chain with .then
-// the response is tranform into json, then call F08
-// called in index.html
-function fetchDataToCreateCardHTML() {
-  fetch('./controller/src/recipes.js')
+/**
+ * Function caller, first filling datas then HTML creator
+ *
+ * @param {object[]} datas Array of objects from recipes.json
+ */
+function computingDatas(datas) {
+  datas.forEach((data) => { populateArrayOfRecipes(data); });
+  populateObjectOfArraysForDropdown();
+  populateArrayForFiltering();
+  insertCreatedHTML(datas);
+}
+
+/** Fetch datas about recipes inside recipes.json
+ *
+ */
+function fetchDataToCreateHTML() {
+  fetch('./controller/src/recipes.json')
     .then((resp) => resp.json())
-    .then((data) => insertCreatedHTML(data))
+    .then((datas) => computingDatas(datas))
     .catch((error) => console.log(`Erreur : ${error}`));
 }
 
@@ -215,9 +232,11 @@ function fetchDataToCreateCardHTML() {
 // DROPDOWN DISPLAYING
 // _________________________________________________________________________________________________
 
-// make container of dropdown bigger while dropdown is open for screen bigger than 768px
-// category is for which dropdown, openClose tell if i'm opening or closing. When opening dropdown
-// the container get bigger, it get his initial size when closing
+/** Making dropdown bigger/smaller when opening/closing dropdown when screen width > 767px
+ *
+ * @param {string} category Category of the dropdown (ingredients, appareils, ustensils)
+ * @param {boolean} openClose True -> opening dropdown | False -> closing dropdown
+ */
 function biggerContainer(category, openClose) {
   const dropdownContainer = document.querySelector(`.dropdown[data-category="${category}"]`);
   const mediaQuery = 'screen and (min-width:768px)';
@@ -230,8 +249,11 @@ function biggerContainer(category, openClose) {
   }
 }
 
-// open or close dropdown menu, category correspond to data-category in DOM, openClose is bool
-// true -> opening | false -> closing
+/** Open or close the dropdown corresponding to category
+ *
+ * @param {string} category Category of the dropdown (ingredients, appareils, ustensils)
+ * @param {boolean} openClose True -> opening dropdown | False -> closing dropdown
+ */
 function openCloseDropdown(category, openClose) {
   const dropdownForm = document.querySelector(`.dropdown-menu[data-category="${category}"]`);
   const morphingBtn = document.querySelector(`.btn-morphing[data-category="${category}"]`);
@@ -241,18 +263,6 @@ function openCloseDropdown(category, openClose) {
   morphingText.dataset.hidden = !openClose;
   morphingBtn.dataset.hidden = openClose;
   biggerContainer(category, openClose);
-}
-
-function initDisplayingOfElements(trueOrFalse, className, isParent) {
-  if (isParent) {
-    document.querySelectorAll(`.${className}`).forEach((el) => {
-      el.parentNode.dataset.hidden = trueOrFalse;
-    });
-  } else {
-    document.querySelectorAll(`.${className}`).forEach((el) => {
-      el.dataset.hidden = trueOrFalse;
-    });
-  }
 }
 
 // _________________________________________________________________________________________________
@@ -265,29 +275,28 @@ document.querySelector('.search-entry').addEventListener('input', (event) => {
   const valueOfSearch = event.target.value;
   const search = new Searching(valueOfSearch, '', '', false);
 
-  console.log(valueOfSearch);
-
   search.filterContent();
 });
 
 // CLOSING CROSS TAG
 document.querySelector('.container-tag').addEventListener('click', (event) => {
-  // while I click on the closing cross of a tag, it remove the concerned tag
   if (event.target.tagName === 'IMG') {
     const contentOfTag = event.target.parentNode.dataset.content;
     const whichCategoryIsIt = event.target.parentNode.dataset.category;
     const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
-    // add or remove tag from DOM
+
     search.toggleTag();
     search.filterContent();
   }
 });
 
+// DROPDOWN CLICK EVENT
 document.querySelector('.container-dropdown').addEventListener('click', (event) => {
   const targetCategory = event.target.dataset.category;
   let isOpenToReturn = true;
   let categoryToReturn = targetCategory;
 
+  // DROPDOWN BUTTON
   if (event.target.tagName === 'BUTTON') {
     if (isADropdownOpen.isOpen) {
       if (isADropdownOpen.category === targetCategory) {
@@ -306,24 +315,22 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
     isADropdownOpen.category = categoryToReturn;
   }
 
-  // TAG events
+  // TAGS
   if (event.target.tagName === 'A') {
     const contentOfTag = event.target.dataset.content;
     const whichCategoryIsIt = event.target.dataset.category;
     const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
 
-    // add or remove tag from DOM
     search.toggleTag();
     search.filterContent();
 
-    // closing dropdown
     openCloseDropdown(targetCategory, false);
     isADropdownOpen.isOpen = false;
     isADropdownOpen.category = '';
   }
 });
 
-// SEARCHING INPUTS
+// DROPDOWN INPUTS
 document.querySelector('.container-dropdown').addEventListener('input', (event) => {
   const valueOfSearch = event.target.value;
   const whichInputIsIt = event.target.dataset.category;
