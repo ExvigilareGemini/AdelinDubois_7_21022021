@@ -16,6 +16,8 @@ let countForColorsOfDropdown = -1;
 
 const arrayOfObjectForFiltering = [];
 
+const dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
+
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
 // DYNAMIC CREATION OF HTML & FILLING DATAS
@@ -267,15 +269,86 @@ function openCloseDropdown(category, openClose) {
 
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
+// CONTENT DISPLAUYING
+// _________________________________________________________________________________________________
+
+/** Add or remove a tag in HTML
+ *
+ */
+function toggleTag(originOfSearch, tagValue, colorOfTag) {
+  if (tagChecked.some((el) => el.value.includes(tagValue))) {
+    const indexOfTagToRemove = tagChecked.findIndex((el) => el.value === tagValue);
+    tagChecked.splice(indexOfTagToRemove, 1);
+    document.querySelector(`[data-content="${tagValue}"]`).remove();
+  } else {
+    tagChecked.push({ origin: originOfSearch, value: tagValue });
+    document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
+            <span class="badge bg-${colorOfTag} p-2 mt-3" data-category="${originOfSearch}" data-content="${tagValue}">${tagValue}
+              <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
+            </span>
+            `);
+  }
+}
+
+/**
+ * Hide all elements with the same class name
+ *
+ * @param {boolean} isHidden True -> hide | False -> appear
+ * @param {string} className Class name of elements to hide
+ * @param {boolean} isParent True -> hide parent of element | False -> hide element
+ */
+function initDisplayingOfElements(isHidden, className, isParent) {
+  document.querySelectorAll(`.${className}`).forEach((el) => {
+    isParent ? el.parentNode.dataset.hidden = isHidden : el.dataset.hidden = isHidden;
+  });
+}
+
+/** Display content of dropdown by hidding those that are not in the filteredObjectOfArray
+   *
+   */
+function refreshDropdownContent(filteredObjectOfArray) {
+  initDisplayingOfElements(true, 'dropdown-item', false);
+
+  dropdownCategories.forEach((cat) => {
+    filteredObjectOfArray[cat].forEach((el) => {
+      document.querySelector(`.dropdown-item[data-category="${cat}"][data-content="${el.toLowerCase()}"]`).dataset.hidden = false;
+    });
+  });
+}
+
+/** Display cards by hidding those that are not in the filteredArray
+   *
+   */
+function refreshCards(filteredArray) {
+  initDisplayingOfElements(true, 'card', true);
+
+  if (filteredArray.length === 0) {
+    filteredArray.forEach((el) => {
+      document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
+    });
+    document.querySelector('.empty-message').dataset.hidden = false;
+  } else {
+    filteredArray.forEach((el) => {
+      document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
+    });
+    document.querySelector('.empty-message').dataset.hidden = true;
+  }
+}
+
+// _________________________________________________________________________________________________
+// _________________________________________________________________________________________________
 // EVENTS
 // _________________________________________________________________________________________________
 
 // MAIN INPUT
 document.querySelector('.search-entry').addEventListener('input', (event) => {
   const valueOfSearch = event.target.value;
-  const search = new Searching(valueOfSearch, '', '', false);
+  const search = new Searching(valueOfSearch, '', 1);
 
-  search.filterContent();
+  search.setCallback((res) => refreshDropdownContent(res));
+  search.getArrayForDropdown();
+  search.setCallback((res) => refreshCards(res));
+  search.getArrayForCards();
 });
 
 // CLOSING CROSS TAG
@@ -283,10 +356,13 @@ document.querySelector('.container-tag').addEventListener('click', (event) => {
   if (event.target.tagName === 'IMG') {
     const contentOfTag = event.target.parentNode.dataset.content;
     const whichCategoryIsIt = event.target.parentNode.dataset.category;
-    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
+    const search = new Searching('', whichCategoryIsIt, 2);
 
-    search.toggleTag();
-    search.filterContent();
+    toggleTag(whichCategoryIsIt, contentOfTag);
+    search.setCallback((res) => refreshDropdownContent(res));
+    search.getArrayForDropdown();
+    search.setCallback((res) => refreshCards(res));
+    search.getArrayForCards();
   }
 });
 
@@ -296,7 +372,7 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
   let isOpenToReturn = true;
   let categoryToReturn = targetCategory;
 
-  // DROPDOWN BUTTON
+  // DROPDOWN BUTTON - OPEN/CLOSE DROPDOWN
   if (event.target.tagName === 'BUTTON') {
     if (isADropdownOpen.isOpen) {
       if (isADropdownOpen.category === targetCategory) {
@@ -319,14 +395,18 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
   if (event.target.tagName === 'A') {
     const contentOfTag = event.target.dataset.content;
     const whichCategoryIsIt = event.target.dataset.category;
-    const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
-
-    search.toggleTag();
-    search.filterContent();
+    const colorOfTag = event.target.parentNode.dataset.color;
+    const search = new Searching('', whichCategoryIsIt, 2);
 
     openCloseDropdown(targetCategory, false);
     isADropdownOpen.isOpen = false;
     isADropdownOpen.category = '';
+
+    toggleTag(whichCategoryIsIt, contentOfTag, colorOfTag);
+    search.setCallback((res) => refreshDropdownContent(res));
+    search.getArrayForDropdown();
+    search.setCallback((res) => refreshCards(res));
+    search.getArrayForCards();
   }
 });
 
@@ -334,7 +414,8 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
 document.querySelector('.container-dropdown').addEventListener('input', (event) => {
   const valueOfSearch = event.target.value;
   const whichInputIsIt = event.target.dataset.category;
-  const search = new Searching(valueOfSearch, whichInputIsIt, '', false);
+  const search = new Searching(valueOfSearch, whichInputIsIt, 3);
 
-  search.filterContent();
+  search.setCallback((res) => refreshDropdownContent(res));
+  search.getArrayForDropdown();
 });

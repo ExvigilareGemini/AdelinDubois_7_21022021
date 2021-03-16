@@ -2,21 +2,9 @@ const tagChecked = [];
 let filteredArrayOfRecipes = [];
 let filteredArrayOfRecipesWithTags = [];
 const filteredObjectOfArrayForDropdown = {};
+const mainFilteringCategories = ['title', 'description', 'ingredients'];
 
 console.log('Main branch');
-
-/**
- * Hide all elements with the same class name
- *
- * @param {boolean} isHidden True -> hide | False -> appear
- * @param {string} className Class name of elements to hide
- * @param {boolean} isParent True -> hide parent of element | False -> hide element
- */
-function initDisplayingOfElements(isHidden, className, isParent) {
-  document.querySelectorAll(`.${className}`).forEach((el) => {
-    isParent ? el.parentNode.dataset.hidden = isHidden : el.dataset.hidden = isHidden;
-  });
-}
 
 /** Verify if a string is inside an object
    *
@@ -33,59 +21,35 @@ class Searching {
   /** Create Searching object
    *
    * @param {string} searchingValue The searching value, set ' ' for tags
-   * @param {string} originOfSearch From where, ' ' for main input, dataset.category for dropdown
-   * @param {string} tagValue The tag value, set ' ' for inputs
-   * @param {boolean} isItATagClick Calling the class clicking on a tag
+   * @param {string} originOfSearch Name of dropdown origin (ingredients, appareils or ustensils)
+   * @param {number} switchOrigin From where it comes :
+   * 1 -> Main Input | 2 -> Click on Tag | 3 -> Dropdown Input
    */
-  constructor(searchingValue, originOfSearch, tagValue, isItATagClick) {
+  constructor(searchingValue, originOfSearch, switchOrigin) {
     this.searchingValue = searchingValue.toLowerCase();
     this.originOfSearch = originOfSearch;
-    this.tagValue = tagValue;
-    this.isItATagClick = isItATagClick;
-
-    this.mainFilteringCategories = ['title', 'description', 'ingredients'];
-    this.dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
+    this.switchOrigin = switchOrigin;
   }
 
-  /** Add or remove a tag in HTML
-   *
-   */
-  toggleTag() {
-    if (tagChecked.some((el) => el.value.includes(this.tagValue))) {
-      const indexOfTagToRemove = tagChecked.findIndex((el) => el.value === this.tagValue);
-      tagChecked.splice(indexOfTagToRemove, 1);
-      document.querySelector(`[data-content="${this.tagValue}"]`).remove();
-    } else {
-      tagChecked.push({ origin: this.originOfSearch, value: this.tagValue });
-      document.querySelector('.container-tag').insertAdjacentHTML('beforeend', `
-              <span class="badge bg-primary p-2 mt-3" data-category="${this.originOfSearch}" data-content="${this.tagValue}">${this.tagValue}
-                <img class="tag-close-cross" src="./assets/src/x-circle.svg" alt="closing cross">
-              </span>
-              `);
-    }
-  }
-
-  /** Populate filteredArrayOfRecipes by filtering array that contains recipes
-   * , filter with searchingValue from main input, originOfSearch = '' is the main input
+  /** Populate filteredArrayOfRecipes by filtering arrayOfObjectForFiltering (from app.js)
+   *, filter with searchingValue from main input
    */
   filterRecipesWithMainInput() {
-    if (this.originOfSearch === '') {
-      if (this.searchingValue.length > 2) {
-        filteredArrayOfRecipes = arrayOfObjectForFiltering.filter((obj) => this.mainFilteringCategories.some((prop) => isInIt(obj, prop, this.searchingValue)));
-      } else {
-        filteredArrayOfRecipes = arrayOfObjectForFiltering;
-      }
+    if (this.searchingValue.length > 2) {
+      // eslint-disable-next-line max-len
+      filteredArrayOfRecipes = arrayOfObjectForFiltering.filter((obj) => mainFilteringCategories.some((prop) => isInIt(obj, prop, this.searchingValue)));
+    } else {
+      filteredArrayOfRecipes = arrayOfObjectForFiltering;
     }
   }
 
-  /** Populate filteredArrayOfRecipesWithTags by filtering filteredArrayOfRecipe
-   * , filter by checking if each of tags are contains inside an object
+  /** Populate filteredArrayOfRecipesWithTags by filtering filteredArrayOfRecipes
+   *, filter by checking if each of tags are contains inside an object
    */
+  // eslint-disable-next-line class-methods-use-this
   filterRecipesWithTags() {
     if (filteredArrayOfRecipes.length === 0) {
-      if (this.isItATagClick === true) {
-        filteredArrayOfRecipes = arrayOfObjectForFiltering;
-      }
+      filteredArrayOfRecipes = arrayOfObjectForFiltering;
     }
 
     filteredArrayOfRecipesWithTags = filteredArrayOfRecipes.filter((obj) => {
@@ -100,65 +64,78 @@ class Searching {
     });
   }
 
-  /** Populate filteredObjetOfArrayForDropdown by filtering
-   * , filter content of dropdown based on recipes displayed
+  /** Populate filteredObjetOfArrayForDropdown by filtering objectOfArraysForDropdown
+   *, filter content of dropdown based on recipes displayed
    */
+  // eslint-disable-next-line class-methods-use-this
   filterArrayForDropdownWithDisplayedCards() {
-    this.dropdownCategories.forEach((cat) => {
+    dropdownCategories.forEach((cat) => {
+      // eslint-disable-next-line max-len
       filteredObjectOfArrayForDropdown[cat] = objectOfArraysForDropdown[cat].filter((el) => filteredArrayOfRecipesWithTags.some((obj) => isInIt(obj, cat, el)));
     });
   }
 
-  /** Populate filteredArrayObjectOfForDropdown by filtering
-   * , filter with searchingValue from one of the dropdown input
+  /** Populate filteredArrayObjectOfForDropdown by filtering filteredObjectOfArrayForDropdown
+   *, filter with searchingValue from one of the dropdown input
    */
-  filterDropdownContentWithDropdownInput() {
-    if (this.originOfSearch !== '') {
-      filteredObjectOfArrayForDropdown[this.originOfSearch] = filteredObjectOfArrayForDropdown[this.originOfSearch].filter((el) => el.toLowerCase().includes(this.searchingValue));
-    }
+  filterArrayForDropdownWithDropdownInput() {
+    // eslint-disable-next-line max-len
+    filteredObjectOfArrayForDropdown[this.originOfSearch] = filteredObjectOfArrayForDropdown[this.originOfSearch].filter((el) => el.toLowerCase().includes(this.searchingValue));
   }
 
-  /** Display content of dropdown by hidding those that are not in the filteredObjectOfArrayForDropdown
-   *
+  /** Set a callback function
+   * @param {function} callbackFunctionfct Function set for callback
    */
-  refreshDropdownContent() {
-    initDisplayingOfElements(true, 'dropdown-item', false);
-
-    this.dropdownCategories.forEach((cat) => {
-      filteredObjectOfArrayForDropdown[cat].forEach((el) => {
-        document.querySelector(`.dropdown-item[data-category="${cat}"][data-content="${el.toLowerCase()}"]`).dataset.hidden = false;
-      });
-    });
+  setCallback(callbackFunctionfct) {
+    this.callback = callbackFunctionfct;
   }
 
-  /** Display cards by hidding those that are not in the filteredArrayOfRecipesWithTags
-   *
+  /** Make a promise to return an object of array to display content of dropdowns
+   * @returns {arrays{}} Object containing arrays to display content of dropdowns
    */
-  refreshCards() {
-    initDisplayingOfElements(true, 'card', true);
-
-    if (filteredArrayOfRecipesWithTags.length === 0) {
-      filteredArrayOfRecipesWithTags.forEach((el) => {
-        document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
-      });
-      document.querySelector('.empty-message').dataset.hidden = false;
-    } else {
-      filteredArrayOfRecipesWithTags.forEach((el) => {
-        document.querySelector(`.card[data-id="${el.id}"]`).parentNode.dataset.hidden = false;
-      });
-      document.querySelector('.empty-message').dataset.hidden = true;
-    }
+  getArrayForDropdown() {
+    new Promise((resolve, reject) => {
+      this.filterContent();
+      const res = filteredObjectOfArrayForDropdown;
+      resolve(res);
+    }).then(this.callback);
   }
 
-  /** Call functions to filter content of HTML
+  /** Make a promise to return an array of object to display cards
+   * @returns {object[]} Array containing object to display cards
+   */
+  getArrayForCards() {
+    new Promise((resolve, reject) => {
+      this.filterContent();
+      const res = filteredArrayOfRecipesWithTags;
+      resolve(res);
+    }).then(this.callback);
+  }
+
+  /** Call functions to filter content of HTML depending on where it comes
    *
    */
   filterContent() {
-    this.filterRecipesWithMainInput();
-    this.filterRecipesWithTags();
-    this.filterArrayForDropdownWithDisplayedCards();
-    this.filterDropdownContentWithDropdownInput();
-    this.refreshDropdownContent();
-    this.refreshCards();
+    switch (this.switchOrigin) {
+      // Main input
+      case 1:
+        this.filterRecipesWithMainInput();
+        this.filterRecipesWithTags();
+        this.filterArrayForDropdownWithDisplayedCards();
+        break;
+      // Tag
+      case 2:
+        this.filterRecipesWithTags();
+        this.filterArrayForDropdownWithDisplayedCards();
+        break;
+      // Dropdown input
+      case 3:
+        this.filterRecipesWithTags();
+        this.filterArrayForDropdownWithDisplayedCards();
+        this.filterArrayForDropdownWithDropdownInput();
+        break;
+      default:
+        console.log('switchOrigin parameter of Searching class not defineds');
+    }
   }
 }
