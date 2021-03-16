@@ -96,15 +96,14 @@ function filteringArrayDropdownInput(category, targetValue) {
  */
 function filterDropdownContentToDisplay(arrayFiltered) {
   dropdownContentToDisplay = [];
-  console.log(arrayFiltered);
+
   dropdownCategories.forEach((cat) => {
-    document.querySelectorAll(`.dropdown-item[data-category="${cat}"]`).forEach((dropItem) => {
+    objectOfArraysForDropdown[cat].forEach((tag) => {
       arrayFiltered.forEach((obj) => {
-        dropItem.dataset.hidden = true;
-        if (obj[cat].toLowerCase().includes(dropItem.dataset.content.toLowerCase())) {
-          dropdownContentToDisplay.push(dropItem.dataset.content);
-        }
-      });
+        if (obj[cat].toLowerCase().includes(tag.toLowerCase())) {
+          dropdownContentToDisplay.push(tag.toLowerCase());
+        }  
+      })
     });
   });
 }

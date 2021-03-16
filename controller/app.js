@@ -331,6 +331,10 @@ function filterContent(actualSearch) {
   const newArrayFiltered = createNewArrayByComparingStrings(actualSearch);
 
   document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
+  document.querySelectorAll('.dropdown-item').forEach((dropItem) => { dropItem.dataset.hidden = true; });
+
+  filterDropdownContentToDisplay(newArrayFiltered);
+  refreshContentOfDropdowns();
 
   if (newArrayFiltered.length === 0) {
     document.querySelector('.empty-message').dataset.hidden = false;
@@ -341,8 +345,6 @@ function filterContent(actualSearch) {
     });
   }
 
-  filterDropdownContentToDisplay(newArrayFiltered);
-  refreshContentOfDropdowns();
 }
 
 // _________________________________________________________________________________________________
