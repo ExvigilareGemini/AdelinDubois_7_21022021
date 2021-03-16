@@ -49,27 +49,26 @@ function filterRecipesWithTags(arrayToFilterWithTags) {
 /** Return an array filtered with searching value and tags checked
  *
  * @param {string} actualSearch Value of search
+ * @param {boolean} comingFromMainInput actualSearch is coming from main input?
+ * @param {boolean} isItAClosingTagClick actualSearch is coming from a closing tag?
  * @returns {object[]} Array of recipes object filtered
  */
-function createNewArrayByComparingStrings(actualSearch) {
+function createNewArrayByComparingStrings(actualSearch, comingFromMainInput, isItAClosingTagClick) {
   let arrayToFilterWithTags = [];
+
   if (isItAClosingTagClick) {
-    if (mainInputLessThan3Caracters) {
-      arrayToFilterWithTags = arrayOfObjectForFiltering;
-      mainInputLessThan3Caracters = false;
-    } else {
-      arrayToFilterWithTags = filteredArrayWithMainInput;
-      isItAClosingTagClick = false;
-    }
-  } else if (valueIsComingFromMainInput) {
-    arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch));
+    arrayToFilterWithTags = filteredArrayWithMainInput;
+  } else if (comingFromMainInput) {
+    actualSearch.length < 3
+      ? arrayToFilterWithTags = arrayOfObjectForFiltering
+      : arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch));
     filteredArrayWithMainInput = arrayToFilterWithTags;
-    valueIsComingFromMainInput = false;
   } else if (filteredArrayWithMainInput.length === 0) {
     arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch));
   } else {
     arrayToFilterWithTags = filteredArrayWithMainInput.filter((el) => isInIt(el, actualSearch));
   }
+
   const arrayToReturn = filterRecipesWithTags(arrayToFilterWithTags);
   return arrayToReturn;
 }
@@ -82,15 +81,16 @@ function createNewArrayByComparingStrings(actualSearch) {
  */
 function filteringArrayDropdownInput(category, targetValue) {
   let arrayFiltered = [];
-  if (dropdownContentToDisplay.length === 0) {
-    arrayFiltered = objectOfArraysForDropdown[category].filter((el) => el.toLowerCase().includes(targetValue));
-  } else {
-    arrayFiltered = dropdownContentToDisplay.filter((el) => el.toLowerCase().includes(targetValue));
-  }
+
+  dropdownContentToDisplay.length === 0
+    ? arrayFiltered = objectOfArraysForDropdown[category].filter((el) => el.toLowerCase().includes(targetValue))
+    : arrayFiltered = dropdownContentToDisplay.filter((el) => el.toLowerCase().includes(targetValue));
+
   return arrayFiltered;
 }
 
-/** Filter array dropdownContentToDisplay with another array array of object
+/** Populate dropdownContentToDisplay to contain only tags to display in dropdown
+ * doing this by filtering param arrayFiltered with objectOfArraysForDropdown
  *
  * @param {object[]} arrayFiltered Array of object used for filtering
  */
@@ -102,8 +102,8 @@ function filterDropdownContentToDisplay(arrayFiltered) {
       arrayFiltered.forEach((obj) => {
         if (obj[cat].toLowerCase().includes(tag.toLowerCase())) {
           dropdownContentToDisplay.push(tag.toLowerCase());
-        }  
-      })
+        }
+      });
     });
   });
 }

@@ -20,10 +20,6 @@ const arrayOfObjectForFiltering = [];
 
 const dropdownCategories = ['ingredients', 'appareils', 'ustensils'];
 
-let isItAClosingTagClick = false;
-let valueIsComingFromMainInput = false;
-let mainInputLessThan3Caracters = true;
-
 // _________________________________________________________________________________________________
 // _________________________________________________________________________________________________
 // DYNAMIC CREATION OF HTML & FILLING DATAS
@@ -327,14 +323,12 @@ function toggleTag(contentOfTag, categoryOfTag) {
  *
  * @param {string} actualSearch Value of search
  */
-function filterContent(actualSearch) {
-  const newArrayFiltered = createNewArrayByComparingStrings(actualSearch);
+function filterContent(actualSearch, comingFromMainInput, isItAClosingTagClick) {
+  // eslint-disable-next-line max-len
+  const newArrayFiltered = createNewArrayByComparingStrings(actualSearch, comingFromMainInput, isItAClosingTagClick);
 
   document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
   document.querySelectorAll('.dropdown-item').forEach((dropItem) => { dropItem.dataset.hidden = true; });
-
-  filterDropdownContentToDisplay(newArrayFiltered);
-  refreshContentOfDropdowns();
 
   if (newArrayFiltered.length === 0) {
     document.querySelector('.empty-message').dataset.hidden = false;
@@ -345,6 +339,8 @@ function filterContent(actualSearch) {
     });
   }
 
+  filterDropdownContentToDisplay(newArrayFiltered);
+  refreshContentOfDropdowns();
 }
 
 // _________________________________________________________________________________________________
@@ -356,14 +352,9 @@ function filterContent(actualSearch) {
 document.querySelector('.search-entry').addEventListener('input', () => {
   const actualSearch = document.querySelector('.search-entry').value.toLowerCase();
   if (actualSearch.length > 2) {
-    valueIsComingFromMainInput = true;
-    mainInputLessThan3Caracters = false;
-    filterContent(actualSearch);
+    filterContent(actualSearch, true, false);
   } else {
-    valueIsComingFromMainInput = true;
-    mainInputLessThan3Caracters = true;
-    filterContent(actualSearch);
-    // document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = false; });
+    filterContent(actualSearch, true, false);
   }
 });
 
@@ -406,9 +397,9 @@ document.querySelector('.container-dropdown').addEventListener('click', (event) 
     const categoryOfTag = event.target.dataset.category;
     // const search = new Searching('', whichCategoryIsIt, contentOfTag, true);
 
-    // // add or remove tag from DOM
+    // add or remove tag from DOM
     toggleTag(contentOfTag, categoryOfTag);
-    filterContent(contentOfTag);
+    filterContent(contentOfTag, false, false);
 
     // closing dropdown
     openCloseDropdown(targetCategory, false);
@@ -426,7 +417,6 @@ document.querySelector('.container-tag').addEventListener('click', (event) => {
 
     // add or remove tag from DOM
     toggleTag(contentOfTag, categoryOfTag);
-    isItAClosingTagClick = true;
-    filterContent(contentOfTag);
+    filterContent(contentOfTag, false, true);
   }
 });
