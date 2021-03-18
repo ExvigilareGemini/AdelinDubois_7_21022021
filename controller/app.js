@@ -351,11 +351,7 @@ function filterContent(actualSearch, comingFromMainInput, isItAClosingTagClick) 
 // MAIN INPUT
 document.querySelector('.search-entry').addEventListener('input', () => {
   const actualSearch = document.querySelector('.search-entry').value.toLowerCase();
-  if (actualSearch.length > 2) {
-    filterContent(actualSearch, true, false);
-  } else {
-    filterContent(actualSearch, true, false);
-  }
+  filterContent(actualSearch, true, false);
 });
 
 // DROPDOWN INPUT
