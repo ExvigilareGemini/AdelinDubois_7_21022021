@@ -302,7 +302,7 @@ function refreshContentOfDropdowns() {
 /** Add/Remove tag from HTML
  *
  * @param {string} contentOfTag Content of tag
- * @param {*} categoryOfTag Category of tag (ingredients, appareils or ustensils)
+ * @param {string} categoryOfTag Category of tag (ingredients, appareils or ustensils)
  */
 function toggleTag(contentOfTag, categoryOfTag) {
   if (tagChecked.some((el) => el.value.includes(contentOfTag))) {
@@ -325,7 +325,7 @@ function toggleTag(contentOfTag, categoryOfTag) {
  */
 function filterContent(actualSearch, comingFromMainInput, isItAClosingTagClick) {
   // eslint-disable-next-line max-len
-  const newArrayFiltered = createNewArrayByComparingStrings(actualSearch, comingFromMainInput, isItAClosingTagClick);
+  const newArrayFiltered = createNewArrayByFiltering(actualSearch, comingFromMainInput, isItAClosingTagClick);
 
   document.querySelectorAll('.card').forEach((card) => { card.parentNode.dataset.hidden = true; });
   document.querySelectorAll('.dropdown-item').forEach((dropItem) => { dropItem.dataset.hidden = true; });

@@ -53,15 +53,15 @@ function filterRecipesWithTags(arrayToFilterWithTags) {
  * @param {boolean} isItAClosingTagClick actualSearch is coming from a closing tag?
  * @returns {object[]} Array of recipes object filtered
  */
-function createNewArrayByComparingStrings(actualSearch, comingFromMainInput, isItAClosingTagClick) {
+function createNewArrayByFiltering(actualSearch, comingFromMainInput, isItAClosingTagClick) {
   let arrayToFilterWithTags = [];
 
   if (isItAClosingTagClick) {
     arrayToFilterWithTags = filteredArrayWithMainInput;
   } else if (comingFromMainInput) {
-    actualSearch.length < 3
-      ? arrayToFilterWithTags = arrayOfObjectForFiltering
-      : arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch));
+    actualSearch.length > 2
+      ? arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch))
+      : arrayToFilterWithTags = arrayOfObjectForFiltering;
     filteredArrayWithMainInput = arrayToFilterWithTags;
   } else if (filteredArrayWithMainInput.length === 0) {
     arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch));
