@@ -57,7 +57,9 @@ function createNewArrayByFiltering(actualSearch, comingFromMainInput, isItAClosi
   let arrayToFilterWithTags = [];
 
   if (isItAClosingTagClick) {
-    arrayToFilterWithTags = filteredArrayWithMainInput;
+    filteredArrayWithMainInput.length === 0
+      ? arrayToFilterWithTags = arrayOfObjectForFiltering
+      : arrayToFilterWithTags = filteredArrayWithMainInput;
   } else if (comingFromMainInput) {
     actualSearch.length > 2
       ? arrayToFilterWithTags = arrayOfObjectForFiltering.filter((el) => isInIt(el, actualSearch))
